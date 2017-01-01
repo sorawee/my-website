@@ -1,0 +1,26 @@
+#lang pollen
+
+@(require racket/file
+          racket/string
+          racket/function)
+
+index.html
+
+@(cons 'blog
+       (map (λ (x) (string->symbol (string-append "blog/" (string-replace x ".poly.pm" ".html"))))
+            (filter (λ (path) (and (not (string-prefix? path "_")) (string-suffix? path ".poly.pm")))
+                    (sort (map path->string (directory-list "blog")) string>?))))
+
+@(cons 'tags
+       (map (λ (x) (string->symbol (string-append "tags/" x "/index.html")))
+            (filter (lambda (x) (directory-exists? (string-append "tags/" x)))
+                    (sort (map path->string (directory-list "tags")) string<?))))
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
+@;  racket utils/tags-generator.rkt
