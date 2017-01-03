@@ -259,15 +259,12 @@ Following is my solution and explanation. Do not read if you wish not to see a s
                 (proc (- (calc1 r c dir) over-calc)))))
 
     (define-values (first-sol)
-      (for/fold ([sum 0]) ([c (in-range cols)])
+      (for*/fold ([sum 0]) ([c cols])
         (values (+ sum (ie0 (equal? WIN (lookup tab (sub1 rows) c))
                             (+ (calc1 (sub1 rows) c 1) (calc1 (sub1 rows) c -1)))))))
     (define-values (second-sol)
-      (for/fold ([sol 0]) ([r (in-range (sub1 rows))]) ; only non-first floor
-        (define-values (sub-sol)
-          (for/fold ([sub-sol sol]) ([c (in-range cols)])
-            (values (max sub-sol (+ (delta r c -1) (delta r c 1))))))
-        (values (max sol sub-sol))))
+      (for*/fold ([sol 0]) ([r (sub1 rows)] [c cols]) ; only non-first floor
+        (values (max sol (+ (delta r c -1) (delta r c 1))))))
     (values first-sol (+ first-sol second-sol)))
 }|
 
