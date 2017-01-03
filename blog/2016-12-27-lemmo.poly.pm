@@ -414,24 +414,22 @@ So a removal of a block will have an impact when @${A_{h,k,d} \ne A_{h+1,k,d}}, 
 
 But this still doesn't give us an answer. We want to know the delta of number of ways to reach a treasure box. Let @${N_{h,k,d}} indicates the number of ways that Lemmo will reach @${(h,k,d)} in the @emph{new} map (after removing block @${(h,k)}). The delta on a direction @${d} then would be @${N_{h,k,d}} when the impact is positive, @${-N_{h,k,d}} when the impact is negative, or @${0} otherwise. This partially corresponds to line 51 (continue reading the next paragraphs for a complete explanation). The total delta is the sum of these two directional deltas. And we just need to find @${(h, k)} that will maximize this delta. This corresponds to line 66.
 
-How do we compute @${N_{h,k,d}}? Let's see... Try the following map where @/code{!} indicates the removed block.
+How do we compute @${N_{h,k,d}}? Since the change occurs on row @${h}, it won't impact rows above @${h}. If we were to compute the table @${N} using dynamic programming, it would agree with @${W} until row @${h - 1}. So far so good. Now we try to compute @${N_{h,k,d}}. If all possible ways for Lemmo to reach @${(h,k)} is to fall from the above floor and then walk @emph{directly} to @${(h,k)}, as shown in the below map, then @${W_{h,k,d} = N_{h,k,d}} since this is exactly what @${W_{h,k,d}} would count as well.
 
 @highlight['text]{
 +---------------------------
 |  .   .   .   .   .   .   .
 |
-|  #############.###########
+|  ###########.#.###########
 |             ←
 |  ...###...##!###...###....
 |
 |  .   .   .   .   .   .   .
 }
 
-The number of ways to get to @/code{←} in the new map is merely the number of ways to get to @/code{←} in the old map! That is, @${N_{h,k,d} = W_{h,k,d}}!
+So @${N_{h,k,d} = W_{h,k,d}}, right?
 
-Right?
-
-This is almost true, but it is unfortunately false in some rare cases. Since the change occurs on row @${h}, it won't impact rows above @${h}. If we were to compute @${N_{h,k,d}} using dynamic programming, it would agree on @${W} until row @${h - 1}. So far so good. Then Lemmo walks and steps on @${(h,k)}. Normally, in the old map it would just walk past @${(h,k)} and then fall to the below floor @emph{without revisiting @${(h,k)} again}, as shown in the above map. Therefore, @${N_{h,k,d} = W_{h,k,d}}. However, this is not always the case. Consider:
+Note that there is a condition above, which is, Lemmo must walk @emph{directly} to t@${(h,k)}. This is almost always the case, but it is unfortunately false in some rare situations. Consider:
 
 @highlight['text]{
 +---------------------------

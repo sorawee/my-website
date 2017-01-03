@@ -15,12 +15,3 @@ index.html
        (map (λ (x) (string->symbol (string-append "tags/" x "/index.html")))
             (filter (lambda (x) (directory-exists? (string-append "tags/" x)))
                     (sort (map path->string (directory-list "tags")) string<?))))
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
-@;  racket utils/tags-generator.rkt
