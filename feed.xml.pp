@@ -12,7 +12,6 @@
 |#
 
 (require xml
-         pollen/file
          pollen/core
          racket/date
          racket/format
@@ -24,7 +23,7 @@
   This is the function that interprets datestrings in the markup sources, in
   this case in the format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm".
 |#
-(require (only-in "pollen.rkt" filename->date get-summary))
+(require (only-in "pollen.rkt" filename->date get-summary get-markup-source))
 
 #|
   Customizeable values
@@ -106,17 +105,6 @@
           (email ,@(email-encode opt-author-email)))
          ,@items))
 
-#|
-  A slightly smarter version of ->markup-source-path. A file listed as
-  "page.html" in a pagetree might have a source page.html.pm, but it might
-  instead have a source "page.poly.pm". This function tests for the existence
-  of the .html.pm version; if that fails, the .poly.pm version is returned.
-|#
-(define (get-markup-source str)
-  (let* ([default-source (->markup-source-path str)])
-    (if (file-exists? default-source)
-        default-source
-        (string->path (string-replace (path->string default-source) ".html" ".poly")))))
 
 #|
   This is the function that determines whether to include a page in the feed.

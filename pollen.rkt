@@ -4,15 +4,16 @@
          txexpr
          pollen/unstable/pygments
          pollen/core
+         pollen/file
          libuuid
          xml
          racket/date
-         (only-in srfi/13 string-contains)
-         racket/cmdline)
+         (only-in srfi/13 string-contains))
 
 (provide highlight
          make-highlight-css
          string-contains
+         ->markup-source-path
          (all-defined-out))
 
 (module setup racket/base
@@ -197,3 +198,15 @@
 
 (define (spoiler . xs)
   (apply folded (cons "[spoiler ⊕]" xs)))
+
+#|
+  A slightly smarter version of ->markup-source-path. A file listed as
+  "page.html" in a pagetree might have a source page.html.pm, but it might
+  instead have a source "page.poly.pm". This function tests for the existence
+  of the .html.pm version; if that fails, the .poly.pm version is returned.
+|#
+(define (get-markup-source str)
+  (let* ([default-source (->markup-source-path str)])
+    (if (file-exists? default-source)
+        default-source
+        (string->path (string-replace (path->string default-source) ".html" ".poly")))))

@@ -429,7 +429,7 @@ How do we compute @${N_{h,k,d}}? Since the change occurs on row @${h}, it won't 
 
 So @${N_{h,k,d} = W_{h,k,d}}, right?
 
-Note that there is a condition above, which is, Lemmo must walk @emph{directly} to t@${(h,k)}. This is almost always the case, but it is unfortunately false in some rare situations. Consider:
+Note that there is a condition above, which is, Lemmo must walk @emph{directly} to @${(h,k)}. This is almost always the case, but it is unfortunately false in some rare situations. Consider:
 
 @highlight['text]{
 +---------------------------
