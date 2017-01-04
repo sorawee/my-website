@@ -187,9 +187,9 @@ PRE.scheme > SPAN.paren > SPAN.paren > SPAN.paren > SPAN.paren > SPAN.paren
 
 Oh yeah...@numbered-note{In fact, what I should do is to generate the CSS file according to the maximum number of depth of all source codes...}
 
-This method requires that the matching parentheses are grouped together in one @/code{span}. This would be easy for raw text because in Racket we have @/code{read} which would transform the whole code to an S-Expression, grouping matching parentheses nicely. However, the current workflow is to use Pygments on the raw text to get the syntax highlight for keywords. Suppose we were to do a proprocess on the raw text to add some information about matching parentheses, this could make Pygments highlight the code completely wrong. But if we were to do a postprocess on the output of Pygments, we would get HTML nodes instead, which is not readable by @/code{read}.
+This method requires that the matching parentheses are grouped together in one @/code{span}. This would be easy for raw text because in Racket we have @/code{read} which would transform the whole code to an S-Expression, grouping matching parentheses nicely. However, the current workflow is to use Pygments on the raw text to get the syntax highlight for keywords. Suppose we were to do a preprocess on the raw text to add some information about matching parentheses, Pygments could highlight the code completely wrong. But if we were to do a postprocess on the output of Pygments, we would get HTML nodes instead, which is not readable by @/code{read}.
 
-So we will do the postprocess, and instead of relying on @/code{read}, we will parse it manually. Note, though, that Pygments is not only doing a syntax highlight. It also acts as a lexer. That means left parenthesis and left parenthesis in a quote would be distinguishable, which is pretty nice. Here's an example of an output from Pygments:
+So we will do the postprocess, and instead of relying on @/code{read}, we will parse the data manually. Note, though, that Pygments is not only doing a syntax highlight. It also acts as a lexer. That means left parenthesis and left parenthesis in a quote would be distinguishable, which is pretty nice. Here's an example of an output from Pygments:
 
 @highlight['racket]|{
   '(div ((class "highlight")) (table ((class "sourcetable"))
@@ -265,20 +265,16 @@ But let's see how we will improve this and make it linear time. There are in fac
         [(? right-thing? rp)
          (define-values (grouped new-stack) (splitf-at stack (negate left-thing?)))
          (values
-           (match stack
-             [(list) (cons e stack)]
-             [_
-              (match stack
-                [(list-rest (== left-paren) _)
-                 (when (not (equal? e right-paren)) (error 'mismatch-type-of-paren))]
-                [(list-rest (== left-bracket) _)
-                 (when (not (equal? e right-bracket)) (error 'mismatch-type-of-paren))]
-                [_ #f])
+           (match new-stack
+             [(list (? left-thing? lp) _ ...)
+              (match (list lp rp)
+                [(list (== left-paren) (== right-paren)) #f]
+                [(list (== left-bracket) (== right-bracket)) #f]
+                [_ (error 'mismatched-type-paren)])
               (cons `(span [[class "paren"]]
-                           ,@(reverse (append (list e)
-                                              grouped
-                                              (list (first new-stack)))))
-                    (rest new-stack))]))]
+                           ,@(reverse (append (list e) grouped (list lp))))
+                    (rest new-stack))]
+             [_ (cons e stack)]))] ; if too many right parentheses
         [_ (values (cons e stack))])))
   (reverse parsed-flipped)
 }|

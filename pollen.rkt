@@ -56,19 +56,15 @@
              (define-values (grouped new-stack) (splitf-at stack (negate left-thing?)))
              (values
                (match new-stack
-                 [(list) (cons e stack)]
-                 [_
-                  (match new-stack
-                    [(list-rest (== left-paren) _)
-                     (when (not (equal? e right-paren)) (error 'mismatch-type-of-paren))]
-                    [(list-rest (== left-bracket) _)
-                     (when (not (equal? e right-bracket)) (error 'mismatch-type-of-paren))]
-                    [_ #f])
+                 [(list (? left-thing? lp) _ ...)
+                  (match (list lp rp)
+                    [(list (== left-paren) (== right-paren)) #f]
+                    [(list (== left-bracket) (== right-bracket)) #f]
+                    [_ (error 'mismatched-type-paren)])
                   (cons `(span [[class "paren"]]
-                               ,@(reverse (append (list e)
-                                                  grouped
-                                                  (list (first new-stack)))))
-                        (rest new-stack))]))]
+                               ,@(reverse (append (list e) grouped (list lp))))
+                        (rest new-stack))]
+                 [_ (cons e stack)]))] ; if too many right parentheses
             [_ (values (cons e stack))])))
       (reverse parsed-flipped))
 
