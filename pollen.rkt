@@ -2,7 +2,7 @@
 
 (require pollen/decode
          txexpr
-         pollen/unstable/pygments
+         (rename-in pollen/unstable/pygments (highlight original-highlight))
          pollen/core
          pollen/file
          libuuid
@@ -28,6 +28,52 @@
           #:string-proc (compose1 smart-quotes smart-dashes)
           #:exclude-tags '(style script pre code)
           #:exclude-attrs (list exclusion-mark-attr)))
+
+
+(define (highlight lang . code)
+  (define out (apply original-highlight (cons lang code)))
+  (match lang
+    ['racket
+     (define left-paren '(span ((class "p")) "("))
+     (define right-paren '(span ((class "p")) ")"))
+     (define left-bracket '(span ((class "p")) "["))
+     (define right-bracket '(span ((class "p")) "]"))
+     (define (not-paren? x)
+       (not (member x (list left-paren right-paren left-bracket right-bracket))))
+     (define (parenthesize lst)
+       (define (iter lst)
+         (match lst
+           [(or (list
+                  prefix ...
+                  (? (curry equal? left-paren) lp)
+                  (? not-paren? inside) ...
+                  (? (curry equal? right-paren) rp)
+                  suffix ...)
+                (list
+                  prefix ...
+                  (? (curry equal? left-bracket) lp)
+                  (? not-paren? inside) ...
+                  (? (curry equal? right-bracket) rp)
+                  suffix ...))
+            (iter (append prefix
+                          (list `(span [[class "paren"]] ,lp ,@(iter inside) ,rp))
+                          suffix))]
+           [_ lst]))
+        (define (normalize lst)
+          ; this function splits (span ((class "p")) ")]") to two nodes:
+          ; (span ((class "p")) ")") and (span ((class "p")) "]")
+          (match lst
+            [(list `(span ((class "p")) ,str) rst ...)
+             (append (map (lambda (x) `(span ((class "p")) ,(string x))) (string->list str))
+                     (normalize rst))]
+            [(list fst rst ...) (cons fst (normalize rst))]
+            [_ lst]))
+        (iter (normalize lst)))
+     (match out
+       [`(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ,things-in-pre ...)) "\n")))) "\n")
+        `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class "racket")) ,@(parenthesize things-in-pre))) "\n")))) "\n")])]
+        ; add class racket to pre
+    [_ out]))
 
 (define super-title "Sorawee's Website")
 (define (! lst) `(@ ,@lst))
@@ -170,7 +216,7 @@
     `(a [[href ,(string-append "/tags/" tag)]] ,tag))
   (! `(,(if header
             `(h2 (a [[href ,(string-append "/" (symbol->string name))]]
-                       (span [[class "smallcaps"]] ,(select-from-metas 'title name))))
+                    (span [[class "smallcaps"]] ,(select-from-metas 'title name))))
                "")
        (p [[class "tags"]]
           "Tags: "
@@ -200,6 +246,8 @@
   (apply folded (cons "[spoiler ⊕]" xs)))
 
 #|
+  From try-pollen
+
   A slightly smarter version of ->markup-source-path. A file listed as
   "page.html" in a pagetree might have a source page.html.pm, but it might
   instead have a source "page.poly.pm". This function tests for the existence
