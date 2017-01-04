@@ -4,5 +4,5 @@
 @(define-meta type "index")
 
 @(define _ (current-pagetree (get-pagetree "index.ptree")))
-@(! (map (lambda (post) (make-post post #:content (get-summary (get-doc post)) #:see-more #t))
+@(! (map (lambda (post) (make-post post #:see-more #t))
     (children 'blog)))

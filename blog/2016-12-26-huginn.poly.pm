@@ -15,7 +15,7 @@ I am following a Thai manga named @emph{EXEcutional}. For other manga, I would n
 
 First, I @/code{curl} the webpage to see if there is any data I could scrape. To my disappointment, there is no data at all. This means the data is likely loaded later by JavaScript, so I try to find the relevant code.
 
-@highlight['html]{
+@filebox-highlight["https://www.mebmarket.com/index.php?action=SeriesDetail&series_id=563&page_no=1" 'html]|{
   ...
   <script >
   var series_id = '563';
@@ -24,11 +24,11 @@ First, I @/code{curl} the webpage to see if there is any data I could scrape. To
   </script>
   <script src="https://www.mebmarket.com/web/Assets/Scripts/Templates/series_details.js?221"></script>
   ...
-}
+}|
 
 Cool! Next I @/code{curl} this JavaScript file, then I find:
 
-@highlight['js]|{
+@filebox-highlight["https://www.mebmarket.com/web/Assets/Scripts/Templates/series_details.js" 'js]|{
   $.ajax({
     type: "POST",
     url: "Ajax.php?action=CallWrapper",
@@ -98,6 +98,6 @@ And set it to read source from the first agent. This completes the setup in Hugi
 
 Huginn then provides us a URL to access the data. The XML one in particular is in RSS format (it's actually Atom, but I will call them interchangably), so copy that one and paste it in an RSS reader.
 
-@img["/blog/img/huginn-feed.png"]
+@/center{@img["/blog/img/huginn-feed.png" #:width "90%"]}
 
 @emj{:)}

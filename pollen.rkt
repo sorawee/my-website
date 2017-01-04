@@ -38,37 +38,40 @@
      (define right-paren '(span ((class "p")) ")"))
      (define left-bracket '(span ((class "p")) "["))
      (define right-bracket '(span ((class "p")) "]"))
-     (define (not-paren? x)
-       (not (member x (list left-paren right-paren left-bracket right-bracket))))
+     (define left-thing? (curryr member (list left-paren left-bracket)))
+     (define right-thing? (curryr member (list right-paren right-bracket)))
      (define (parenthesize lst)
-       (define (iter lst)
+       (define (normalize lst)
          (match lst
-           [(or (list
-                  prefix ...
-                  (? (curry equal? left-paren) lp)
-                  (? not-paren? inside) ...
-                  (? (curry equal? right-paren) rp)
-                  suffix ...)
-                (list
-                  prefix ...
-                  (? (curry equal? left-bracket) lp)
-                  (? not-paren? inside) ...
-                  (? (curry equal? right-bracket) rp)
-                  suffix ...))
-            (iter (append prefix
-                          (list `(span [[class "paren"]] ,lp ,@(iter inside) ,rp))
-                          suffix))]
+           [(list `(span ((class "p")) ,str) rst ...)
+            (append (map (lambda (x) `(span ((class "p")) ,(string x))) (string->list str))
+                    (normalize rst))]
+           [(list fst rst ...) (cons fst (normalize rst))]
            [_ lst]))
-        (define (normalize lst)
-          ; this function splits (span ((class "p")) ")]") to two nodes:
-          ; (span ((class "p")) ")") and (span ((class "p")) "]")
-          (match lst
-            [(list `(span ((class "p")) ,str) rst ...)
-             (append (map (lambda (x) `(span ((class "p")) ,(string x))) (string->list str))
-                     (normalize rst))]
-            [(list fst rst ...) (cons fst (normalize rst))]
-            [_ lst]))
-        (iter (normalize lst)))
+      (define-values (parsed-flipped)
+        (for/fold ([stack '()]) ([e (normalize lst)])
+          (match e
+            [(? left-thing? lp) (values (cons lp stack))]
+            [(? right-thing? rp)
+             (define-values (grouped new-stack) (splitf-at stack (negate left-thing?)))
+             (values
+               (match new-stack
+                 [(list) (cons e stack)]
+                 [_
+                  (match new-stack
+                    [(list-rest (== left-paren) _)
+                     (when (not (equal? e right-paren)) (error 'mismatch-type-of-paren))]
+                    [(list-rest (== left-bracket) _)
+                     (when (not (equal? e right-bracket)) (error 'mismatch-type-of-paren))]
+                    [_ #f])
+                  (cons `(span [[class "paren"]]
+                               ,@(reverse (append (list e)
+                                                  grouped
+                                                  (list (first new-stack)))))
+                        (rest new-stack))]))]
+            [_ (values (cons e stack))])))
+      (reverse parsed-flipped))
+
      (match out
        [`(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ,things-in-pre ...)) "\n")))) "\n")
         `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class "racket")) ,@(parenthesize things-in-pre))) "\n")))) "\n")])]
@@ -165,7 +168,8 @@
                        (span [[class "latex-sub"]] "e")
                        "X"))
 
-(define (img path) `(img ((src ,path))))
+(define (img path #:width [width "40%"])
+  `(img [[src ,path] [style ,(string-append "width:" width)]]))
 
 (define (task . xs) `(u ,@xs))
 
@@ -201,9 +205,9 @@
     [_ #f]))
 
 (define (make-post post
-                   #:content [content (splice-top (get-doc post))]
                    #:see-more [see-more #f]
                    #:header [header #t])
+  (define content ((if see-more get-summary splice-top) (get-doc post)))
   (define name (string->symbol
     (regexp-replace #px"(.*?)\\.poly\\.pm"
                     (symbol->string post) "\\1.html")))
