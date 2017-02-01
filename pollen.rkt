@@ -44,7 +44,7 @@
        (define (normalize lst)
          (match lst
            [(list `(span ((class "p")) ,str) rst ...)
-            (append (map (lambda (x) `(span ((class "p")) ,(string x))) (string->list str))
+            (append (map (λ (x) `(span ((class "p")) ,(string x))) (string->list str))
                     (normalize rst))]
            [(list fst rst ...) (cons fst (normalize rst))]
            [_ lst]))
@@ -73,6 +73,8 @@
         `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class "racket")) ,@(parenthesize things-in-pre))) "\n")))) "\n")])]
         ; add class racket to pre
     [_ out]))
+
+(define (see-more) `(see-more))
 
 (define super-title "Sorawee's Website")
 (define (! lst) `(@ ,@lst))
@@ -141,18 +143,60 @@
     [_ (! texts)])))
 
 
+(define (LaTeX-transform s)
+  (define table '(("<->" "\\leftrightarrow")
+                  ("|->" "\\mapsto")
+                  ("\\->" "\\to")
+                  ("\\<-" "\\leftarrow")
+                  ("|=" "\\lmodels")
+                  ("|-" "\\vdash")))
+  (foldl (λ (item prev) (string-replace prev (first item) (second item))) s table))
+
+(define (msplice xs)
+  (define (splice-one x)
+    (match (msplice x)
+      [(list '@ xs ...) xs]
+      [y (list y)]))
+  (match xs
+    [(list xs ...) (apply append (map splice-one xs))]
+    [_ xs]))
+
 (define ($ . xs)
-  `(mathjax ,(apply string-append `("$" ,@xs "$"))))
+  `(mathjax ,(! `("$" ,@(map LaTeX-transform (msplice xs)) "$"))))
 (define ($$ . xs)
-  `(mathjax ,(apply string-append `("$$" ,@xs "$$"))))
+  `(mathjax ,(! `("$$" ,@xs "$$"))))
 
+(define (proof #:wrong [wrong #f] . xs) `(div ,@xs))
 
-(define (numberlist . items) `(ol ,@items))
-(define (itemlist . items) `(ul ,@items))
+(define (pre #:options options . xs)
+  (define hash #hasheq((allowed-math . "tex2jax_process")))
+  (define (get-class options)
+    (string-join (filter-map (λ (option) (hash-ref hash option #f)) options)))
+  `(pre [[class ,(get-class options)]] ,@xs))
 
 (define (item . items) `(li ,@items))
+(define (is-item x)
+  (match x
+    [`(li ,_ ...) x]
+    [_ (error "not-item-in-list" x)]))
+
+(define (numberlist . items) `(ol ,@(map is-item items)))
+(define (itemlist . items) `(ul ,@(map is-item items)))
+(define (argumentlist . items)
+  (define-values (premises conclusion) (split-at (map is-item items) (sub1 (length items  ))))
+  (match-define `((li ,xs ...))  conclusion)
+  `(div [[class "argument"]] (ol [[style "margin-bottom: 0;"]] ,@premises) (ul [[class "no-bullet"]] (li (hr [[class "logic-separator"]])) (li [[class "logic-conclusion"]] ,@xs))))
 
 (define (emph . xs) `(i ,@xs))
+(define (bold . xs) `(b ,@xs))
+(define (under . xs) `(u ,@xs))
+(define (strike . xs) `(s ,@xs))
+(define (code . xs) `(code ,@xs))
+
+(define (outdated . xs)
+  `(div [[class "outdated"]]
+        (div (u (b "Outdated:")))
+        (div ,@xs)))
 
 (define (menu s)
   (! (add-between (map (λ (x) `(b ,x)) (string-split s " > ")) " > ")))
@@ -172,6 +216,8 @@
 (define (notice . xs) `(i ,@xs))
 (define (migration-notice) (notice "This is a post migrated from my old blog."))
 
+(define (eng . xs) (! (append (list "(ภาษาอังกฤษ: ") xs (list ")"))))
+
 (define (^ . xs) `(sup ,@xs))
 
 (define filebox-tag 'div)
@@ -179,8 +225,8 @@
 (define filename-tag 'div)
 (define filename-class "filename")
 (define (filebox filename . xs)
-  `(,filebox-tag ((class ,filebox-class))
-                 (,filename-tag ((class ,filename-class) ,exclusion-mark-attr)
+  `(,filebox-tag [[class ,filebox-class]]
+                 (,filename-tag [[class ,filename-class] ,exclusion-mark-attr]
                                 ,(format "~a" filename))
                  ,@xs))
 

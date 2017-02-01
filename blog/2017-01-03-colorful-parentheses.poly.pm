@@ -1,7 +1,7 @@
 #lang pollen
 
 @(define-meta title "Colorful Parentheses!")
-@(define-meta tags (racket))
+@(define-meta tags (racket blog))
 
 I tried to learn @link["https://en.wikipedia.org/wiki/Continuation"]{continuations} yesterday. This led me to a @link["http://community.schemewiki.org/?p=composable-continuations-tutorial"]{tutorial for composable continuations} in schemewiki.org. It explains things nicely, but what really intrigues me is something completely different: the colorful syntax highlight for nested parentheses when hovering cursor over them.
 
@@ -29,9 +29,9 @@ First step is straightforward: look at the source code. Here's the result:
   ...
 }|
 
-for @/code{(+ 1 (+ 3 (+ 2 4)))}. Something is going on with that class @/code{paren}... Perhaps JavaScript? But I searched for @/code{js} in the source code and found nothing...
+for @code{(+ 1 (+ 3 (+ 2 4)))}. Something is going on with that class @code{paren}... Perhaps JavaScript? But I searched for @code{js} in the source code and found nothing...
 
-CSS? I saw @/code{<link rel="stylesheet" href="/css/default.css" type="text/css">} at the top of the file...
+CSS? I saw @code{<link rel="stylesheet" href="/css/default.css" type="text/css">} at the top of the file...
 
 @filebox-highlight["http://community.schemewiki.org/css/default.css" 'css]|{
 ...
@@ -187,9 +187,9 @@ PRE.scheme > SPAN.paren > SPAN.paren > SPAN.paren > SPAN.paren > SPAN.paren
 
 Oh yeah...@numbered-note{In fact, what I should do is to generate the CSS file according to the maximum number of depth of all source codes...}
 
-This method requires that the matching parentheses are grouped together in one @/code{span}. This would be easy for raw text because in Racket we have @/code{read} which would transform the whole code to an S-Expression, grouping matching parentheses nicely. However, the current workflow is to use Pygments on the raw text to get the syntax highlight for keywords. Suppose we were to do a preprocess on the raw text to add some information about matching parentheses, Pygments could highlight the code completely wrong. But if we were to do a postprocess on the output of Pygments, we would get HTML nodes instead, which is not readable by @/code{read}.
+This method requires that the matching parentheses are grouped together in one @code{span}. This would be easy for raw text because in Racket we have @code{read} which would transform the whole code to an S-Expression, grouping matching parentheses nicely. However, the current workflow is to use Pygments on the raw text to get the syntax highlight for keywords. Suppose we were to do a preprocess on the raw text to add some information about matching parentheses, Pygments could highlight the code completely wrong. But if we were to do a postprocess on the output of Pygments, we would get HTML nodes instead, which is not readable by @code{read}.
 
-So we will do the postprocess, and instead of relying on @/code{read}, we will parse the data manually. Note, though, that Pygments is not only doing a syntax highlight. It also acts as a lexer. That means left parenthesis and left parenthesis in a quote would be distinguishable, which is pretty nice. Here's an example of an output from Pygments:
+So we will do the postprocess, and instead of relying on @code{read}, we will parse the data manually. Note, though, that Pygments is not only doing a syntax highlight. It also acts as a lexer. That means left parenthesis and left parenthesis in a quote would be distinguishable, which is pretty nice. Here's an example of an output from Pygments:
 
 @highlight['racket]|{
   '(div ((class "highlight")) (table ((class "sourcetable"))
@@ -213,7 +213,7 @@ This blob of data contains what we want, but it's not exactly a stream of tokens
      ; add class scheme to pre to make CSS works
 }|
 
-So what we need to do is to write a function @/code{parenthesize} to match @/code{(span ((class "p")) "(")} with @/code{(span ((class "p")) ")")}. Notice however that right now adjacent parentheses are grouped together, like @/code{(span ((class "p")) "))")}. Therefore, we need to first normalize them by splitting them to multiple tokens: @/code{(span ((class "p")) ")")} and @/code{(span ((class "p")) ")")}.
+So what we need to do is to write a function @code{parenthesize} to match @code{(span ((class "p")) "(")} with @code{(span ((class "p")) ")")}. Notice however that right now adjacent parentheses are grouped together, like @code{(span ((class "p")) "))")}. Therefore, we need to first normalize them by splitting them to multiple tokens: @code{(span ((class "p")) ")")} and @code{(span ((class "p")) ")")}.
 
 @highlight['racket]|{
   (define (normalize lst)
@@ -245,7 +245,7 @@ After normalization, we now need to do the real work which is to parse and group
       [_ lst]))
 }|
 
-And finally define @/code{parenthesize}:
+And finally define @code{parenthesize}:
 
 @highlight['racket]|{
   (define parenthesize (compose1 iter normalize))
@@ -253,7 +253,7 @@ And finally define @/code{parenthesize}:
 
 And @emph{holy cow, it works!} Pretty quickly too. The exact time complexity is unclear since I do not know how the magic of pattern matching works. Note that the matching patterns are not static data, so the compiler would not be able to exploit this much. Thus, we can assume that the compiler will generate a dumb code to try to match things. Finding an innermost matching parentheses definitely takes at least linear time, and we repeat it until there's no more matching parentheses. That is, the algorithm would be at least quadratic. Since the code in my blog would be at most 500 lines long, that's pretty chill.
 
-But let's see how we will improve this and make it linear time. There are in fact several ways to do it. @link["http://justinpombrio.net"]{Justin Pombrio} particularly likes the stack solution one:
+But let's see how we will improve this and make it linear time. There are in fact several ways to do it. @link["http://justinpombrio.net"]{Justin} particularly likes the stack solution one:
 
 @highlight['racket]|{
   (define left-thing? (curryr member (list left-paren left-bracket)))
@@ -272,7 +272,7 @@ But let's see how we will improve this and make it linear time. There are in fac
                 [(list (== left-bracket) (== right-bracket)) #f]
                 [_ (error 'mismatched-type-paren)])
               (cons `(span [[class "paren"]]
-                           ,@(reverse (append (list e) grouped (list lp))))
+                           ,@(reverse (append (list rp) grouped (list lp))))
                     (rest new-stack))]
              [_ (cons e stack)]))] ; if too many right parentheses
         [_ (values (cons e stack))])))

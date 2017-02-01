@@ -1,7 +1,7 @@
 #lang pollen
 
 @(define-meta title "Huginn")
-@(define-meta tags (huginn rss))
+@(define-meta tags (huginn rss scraping))
 
 Yahoo! @link["http://lifehacker.com/yahoo-pipes-is-closing-down-1709067642"]{terminated} Yahoo! Pipes on June 4, 2015. It breaks my heart to see another good service dying. However, I recently found another project which has an ability just like Yahoo! Pipes: @link["github.com/cantino/huginn"]{Huginn}
 
@@ -13,7 +13,7 @@ Here comes an example:
 
 I am following a Thai manga named @emph{EXEcutional}. For other manga, I would need to wait until I get back to Thailand and read them. Luckily, @emph{EXEcutional} has an @link["https://www.mebmarket.com/index.php?action=SeriesDetail&series_id=563&page_no=1"]{e-book version}, so I could just buy it online. I however want to be notified whenever a new issue is released.
 
-First, I @/code{curl} the webpage to see if there is any data I could scrape. To my disappointment, there is no data at all. This means the data is likely loaded later by JavaScript, so I try to find the relevant code.
+First, I @code{curl} the webpage to see if there is any data I could scrape. To my disappointment, there is no data at all. This means the data is likely loaded later by JavaScript, so I try to find the relevant code.
 
 @filebox-highlight["https://www.mebmarket.com/index.php?action=SeriesDetail&series_id=563&page_no=1" 'html]|{
   ...
@@ -26,7 +26,7 @@ First, I @/code{curl} the webpage to see if there is any data I could scrape. To
   ...
 }|
 
-Cool! Next I @/code{curl} this JavaScript file, then I find:
+Cool! Next I @code{curl} this JavaScript file, then I find:
 
 @filebox-highlight["https://www.mebmarket.com/web/Assets/Scripts/Templates/series_details.js" 'js]|{
   $.ajax({
@@ -73,7 +73,7 @@ To scrape this data, create a "Website Agent" with the following configurations:
   }
 }|
 
-This uses a query language named @link["http://goessner.net/articles/JsonPath/"]{JSONPath} to scrape all @/code{book_name}.
+This uses a query language named @link["http://goessner.net/articles/JsonPath/"]{JSONPath} to scrape all @code{book_name}.
 
 Next, we will export this as a feed, so create a "Data Output Agent" with the following configurations:
 

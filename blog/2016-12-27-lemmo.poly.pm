@@ -163,7 +163,7 @@ Let @${r, c} be the number of rows and columns of the map respectively. Initiall
   }, false);
 }|
 
-@notice{Use the following keys to setup the initial configuration: @kbds{Left} to move/face left, @kbds{Right} to move/face right. Then click @/code{Start} to begin the game.}
+@notice{Use the following keys to setup the initial configuration: @kbds{Left} to move/face left, @kbds{Right} to move/face right. Then click @code{Start} to begin the game.}
 
 @task{Task 1: Write a program to find how many different initial configurations will lead Lemmo to a treasure box?}
 
@@ -171,11 +171,11 @@ Let @${r, c} be the number of rows and columns of the map respectively. Initiall
 
 Here's the constraints:
 
-@itemlist{
+@itemlist[
   @item{Time limit: 1 second}
   @item{Memory limit: 32MB}
   @item{@${1 \le r, c \le 1000}}
-}
+]
 
 The input will be in the following format:
 
@@ -186,7 +186,7 @@ The input will be in the following format:
   @#@$@$######
 }|
 
-where @/code|{@}| indicates a bottomless sewer drain, @/code{#} indicates a block on a floor, @/code{.} indicates a space, and @/code{$} indicates a treasure box.
+where @code|{@}| indicates a bottomless sewer drain, @code{#} indicates a block on a floor, @code{.} indicates a space, and @code{$} indicates a treasure box.
 
 In the above example, the configurations facing left in the column 6, 7, 8, 9 will lead to the leftmost bottomless sewer drain, while the rest will lead to the rightmost treasure box. However, if we remove the block at row 3, column 4, all configurations will lead to a treasure box. Therefore, the answer should be 20 and 24 respectively.
 
@@ -314,9 +314,9 @@ This is when dynamic programming comes to rescue. What we want to know is the nu
 |  #########$
 }
 
-To be at @/code{←} (facing to the left, as suggested by the arrow), Lemmo must come from either the above (the above is a space, so it's possible that Lemmo will get here by falling from there), or from the right.
+To be at @code{←} (facing to the left, as suggested by the arrow), Lemmo must come from either the above (the above is a space, so it's possible that Lemmo will get here by falling from there), or from the right.
 
-To illustrate, the number of initial configurations that could make Lemmo to be at @/code{←} is 15.
+To illustrate, the number of initial configurations that could make Lemmo to be at @code{←} is 15.
 
 @highlight['text]{
     →→→→→→→→→
@@ -357,9 +357,9 @@ plus the number of ways that Lemmo can reach the right (10)
 |  #########$
 }
 
-Let's now formalize it. Let @${W_{i, j, d}} be the number of ways to reach position at row @${i \in \{1,2,...,r\}}, column @${j \in \{1,2,...,c\}}, and @${d \in \{ L, R \}} indicates the direction that Lemmo is facing. This corresponds to the function @/code{calc1} in line 36.
+Let's now formalize it. Let @${W_{i, j, d}} be the number of ways to reach position at row @${i \in \{1,2,...,r\}}, column @${j \in \{1,2,...,c\}}, and @${d \in \{ L, R \}} indicates the direction that Lemmo is facing. This corresponds to the function @code{calc1} in line 36.
 
-@itemlist{
+@itemlist[
   @item{
     Base case: to simplify things, let's add another layer, row 0, to the map where I will refer to as "sky." Sky, as the name suggested, is all spaces (no block). We will then drop Lemmo from the sky instead. This will not affect the answer, since eventually Lemmo will fall to the original place anyway. However, we now have a clear base case, as there is exactly one way to reach it (which is by dropping it there). Therefore, @${W_{0, j, L} = W_{0, j, R} = 1} for all @${j}.
 
@@ -367,16 +367,16 @@ Let's now formalize it. Let @${W_{i, j, d}} be the number of ways to reach posit
   }
   @item{
     Inductive case: if it's not the base case, then Lemmo can be at position @${i, j} facing in the direction @${d} by two ways:
-    @numberlist{
+    @numberlist[
       @item{From the space above: therefore, this is only applicable when the above is a space. Note that if Lemmo comes from the above, during the fall, it couldn't change a direction. Thus, if it is applicable, we know already what is the number of ways to get to the above: @${W_{i - 1, j, d}}. This corresponds to line 40.}
       @item{
         From behind (in the same row): this part is a little bit tricky. Suppose the behind position is a space, then Lemmo would fall to the lower floor. It can't jump to this position. Similarly, if the behind position is a treasure box or a bottomless sewer drain, then the game would have ended already. These are the cases that are not applicable.
 
         But moreover, there is one special case: suppose we are adjacent to a wall (either left or right wall) and facing out of the wall, then the behind position can't be within the wall. It would instead come from the exactly same position, but facing in the other direction. In the normal case however, the direction would still need to be maintained, as Lemmo will not switch the direction unless it's the special case.
 
-        Thus, if it's applicable, the number of ways to get to the behind position is @${W_{i, j', d'}} where @${j'} is the behind position, and @${d'} is the direction in the behind position (@${d' \ne d} if it's a special case, but would be the same otherwise). This corresponds to line 41. Note that the function @/code{get-hmove} in line 32 is for computing the behind position (and its direction).
+        Thus, if it's applicable, the number of ways to get to the behind position is @${W_{i, j', d'}} where @${j'} is the behind position, and @${d'} is the direction in the behind position (@${d' \ne d} if it's a special case, but would be the same otherwise). This corresponds to line 41. Note that the function @code{get-hmove} in line 32 is for computing the behind position (and its direction).
       }
-    }
+    ]
 
     Therefore:
 
@@ -389,7 +389,7 @@ Let's now formalize it. Let @${W_{i, j, d}} be the number of ways to reach posit
 
     which corresponds to line 40.
   }
-}
+]
 
 Regarding the time complexity, for each @${i, j, d}, we compute @${W_{i, j, d}} in constant time, provided that other values in @${W} is calculated already. With @link["http://papl.cs.brown.edu/2016/Algorithms_That_Exploit_State.html#(part._.Abstracting_.Memoization)"]{memoization}, it takes @${O(rc)} to compute any (and all) @${W_{i, j, d}}.
 
@@ -401,7 +401,7 @@ The naive way would be to try removing each block at a time in the map, and run 
 
 One important fact is that Lemmo's walk is deterministic. Therefore, a position and the direction completely determines Lemmo's eventual destination. That is, it is possible compute @${A_{i, j, d} \in \{T_1, T_2, ..., T_t, F_1, F_2, ..., F_f\}} where @${T_1, T_2, ..., T_t} are all treasure boxes, and @${F_1, F_2, ..., F_f} are bottomless sewer drains, and @${i \in \{1,2,...,r\}, j \in \{1,2,...,c\}, d \in \{ L, R \}}. This, again, uses dynamic programming which is perhaps even easier than that in the first task, so I will skip the explanation.
 
-Note, though, that this is even too detailed. We don't really want to know where exactly Lemmo will end up. We only want to know whether it will find a treasure box or it will fall into a bottomless sewer drain, as that's what we need to know to calculate the answer. Thus, we will refine the previous definition: we will compute @${A_{i, j, d} \in \{T, F\}} where @${T} indicates that the eventual destination is a treasure box, and @${F} indicates that the eventual destination is a bottomless sewer drains. This corresponds to function @/code{win?} at line 42. Note that it could be the case that the state @${(i, j, d)} might not be reachable at all, but suppose we somehow place Lemmo there, @${A_{i,j,d}} would determine the future status of Lemmo correctly.@numbered-note{@${A_{i,j,d}}  can also be used for computing the first task, but we will need both @${W_{i,j,d}} and @${A_{i,j,d}} so it doesn't matter which one we will use.}
+Note, though, that this is even too detailed. We don't really want to know where exactly Lemmo will end up. We only want to know whether it will find a treasure box or it will fall into a bottomless sewer drain, as that's what we need to know to calculate the answer. Thus, we will refine the previous definition: we will compute @${A_{i, j, d} \in \{T, F\}} where @${T} indicates that the eventual destination is a treasure box, and @${F} indicates that the eventual destination is a bottomless sewer drains. This corresponds to function @code{win?} at line 42. Note that it could be the case that the state @${(i, j, d)} might not be reachable at all, but suppose we somehow place Lemmo there, @${A_{i,j,d}} would determine the future status of Lemmo correctly.@numbered-note{@${A_{i,j,d}}  can also be used for computing the first task, but we will need both @${W_{i,j,d}} and @${A_{i,j,d}} so it doesn't matter which one we will use.}
 
 What we are going to do will be similar to the naive way. We will try removing each block at a time in the map and evaluate how many initial configurations that will lead to a treasure box changes after the removal. However, we will not call the algorithm in the first task on the modified map. Instead, we will use the exactly same data from the first task that we have already to compute the answer.
 
@@ -443,13 +443,13 @@ Here, @${N_{h,k,L} \ne W_{h,k,L}} because @${W_{h,k,L}} includes the situation w
 
 Now we know exactly when will this weird rare case happens: when Lemmo faces out of a wall, and would have just bounced off from the wall. That is, there are contiguous blocks starting from the @${(h,k)} to the wall. There are now two questions:
 
-@itemlist{
+@itemlist[
   @item{
     How do we detect this special case efficiently?
 
     the naive way would be looping from @${(h,k)} to the wall and see if they are all blocks. However, number of blocks in a floor is in the order of @${O(c)}. We need to try removing all blocks where the number of all blocks are in the order of @${O(rc)} already, so this would result in @${O(rc^2)} which is too slow.
 
-    And, you know how this will go: dynamic programming! They are all blocks if the current position is a block and the rest are all blocks. I in fact make it even simpler by observing the following: Let's say we maps @/code{#} to 1 and @/code{.} to 0.
+    And, you know how this will go: dynamic programming! They are all blocks if the current position is a block and the rest are all blocks. I in fact make it even simpler by observing the following: Let's say we maps @code{#} to 1 and @code{.} to 0.
 
     @highlight['text]{
       ##..###..#.####
@@ -479,14 +479,14 @@ Now we know exactly when will this weird rare case happens: when Lemmo faces out
 
     So detecting this special case can be done in @${O(1)} (provided that the prefix-sum is already constructed)!
 
-    Building the prefix-sum table corresponds to line 20. Checking if it's all blocks corresponds to function @/code{has-all?} in line 30.
+    Building the prefix-sum table corresponds to line 20. Checking if it's all blocks corresponds to function @code{has-all?} in line 30.
   }
   @item{
     How do we cope with it?
 
     Well, if we know that it's a special case, then we know that @${W_{h,k,d}} overcounts, because it includes @${W_{h,k,d'}} where @${d} is the direction facing out of the wall, and @${d'} is the direction facing in the wall. Therefore, @${N_{h,k,d}} is just @${W_{h,k,d} - W_{h,k,d'}}. This corresponds to line 60.
   }
-}
+]
 
 The second task only needs to compute the table @${A} and the prefix-sum table. Just like the first task, both of these can be done in @${O(rc)} (one is a direct table-filling dynamic programming, and the other is memoization).
 

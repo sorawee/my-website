@@ -11,6 +11,12 @@ index.html
             (filter (λ (path) (and (not (string-prefix? path "_")) (string-suffix? path ".poly.pm")))
                     (sort (map path->string (directory-list "blog")) string>?))))
 
+@(cons 'books
+       (map (λ (x) (string->symbol (string-append "books/" (string-replace x ".poly.pm" ".html"))))
+            (filter (λ (path) (and (not (string-prefix? path "_")) (string-suffix? path ".poly.pm")))
+                    (sort (map path->string (directory-list "books")) string>?))))
+
+
 @(cons 'tags
        (map (λ (x) (string->symbol (string-append "tags/" x "/index.html")))
             (filter (lambda (x) (directory-exists? (string-append "tags/" x)))
