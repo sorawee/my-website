@@ -1,13 +1,14 @@
 #lang pollen
 
 @(define-meta title "Lemmo")
-@(define-meta tags (competition programming lemmings))
+@(define-meta tags (dynamic-programming competition programming lemmings))
 
-Wandering around in Wikipedia yesterday, I found this article: @emph{@link["https://en.wikipedia.org/wiki/Lemmings_(video_game)"]{Lemmings}}. Though I never play this game before,  I have played its open-source clone, @emph{@link["https://pingus.seul.org"]{Pingus}}, which is really enjoyable@numbered-note{I in fact have devised a pretty good (if not optimal) @link["https://www.youtube.com/watch?v=Wdl9bBUmU-k"]{strategy} for a level several years ago.}. This post is written to pay tribute to this wonderful game.
+Wandering around in Wikipedia yesterday, I found this article: @emph{@link["https://en.wikipedia.org/wiki/Lemmings_(video_game)"]{Lemmings}}. Though I never play this game before,  I have played its open-source clone, @emph{@link["https://pingus.seul.org"]{Pingus}}, which is really enjoyable@numbered-note{I in fact have devised a pretty good @link["https://www.youtube.com/watch?v=Wdl9bBUmU-k"]{strategy} for a level several years ago.
+@edited-on{February 25, 2017}: @link["https://www.youtube.com/watch?v=ZxqKr5DMTDI"]{someone} broke my record! @emj{:D}}. This post is written to pay tribute to this wonderful game.
 
 @/see-more[]
 
-@/center{@img["https://upload.wikimedia.org/wikipedia/en/0/0c/Lemmings-BoxScan.jpg"]}
+@figure["https://upload.wikimedia.org/wikipedia/en/0/0c/Lemmings-BoxScan.jpg"]
 
 Anyway, the post is not really going to be about the game. @emph{Lemmings} also reminds me of something else too. Several years ago, I attempted to solve a programming puzzle and failed. Then I tried again a year after that, and for this time, I succeeded. It became one of my favorite puzzles because of its trickiness under a seemingly simple problem. This programming puzzle is known as @emph{Lemmo}@numbered-note{Here is the @link["http://theory.cpe.ku.ac.th/~pramook/ioi/2011/oct12_lemmo.pdf"]{original problem statement} (in Thai)}. Indeed, it's a yet another variant of @emph{Lemmings}.
 

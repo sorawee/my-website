@@ -29,9 +29,25 @@
           #:exclude-tags '(style script pre code)
           #:exclude-attrs (list exclusion-mark-attr)))
 
+(define (bquote . xs) `(blockquote ,@xs))
 
-(define (highlight lang . code)
+(define (highlight lang . code-original)
+  (define store (make-hash))
+  (define code
+    (for/list ([s code-original])
+      (cond
+        [(string? s) s]
+        [else
+         (define new-s (symbol->string (gensym)))
+         (hash-set! store new-s s)
+         new-s])))
   (define out (apply original-highlight (cons lang code)))
+
+  (define (extract-highlight f out class)
+    (match out
+      [`(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ,things-in-pre ...)) "\n")))) "\n")
+       `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class ,(string-append class " tex2jax_process"))) ,@(f things-in-pre))) "\n")))) "\n")]))
+
   (match lang
     ['racket
      (define left-paren '(span ((class "p")) "("))
@@ -67,12 +83,12 @@
                  [_ (cons e stack)]))] ; if too many right parentheses
             [_ (values (cons e stack))])))
       (reverse parsed-flipped))
-
-     (match out
-       [`(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ,things-in-pre ...)) "\n")))) "\n")
-        `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class "racket")) ,@(parenthesize things-in-pre))) "\n")))) "\n")])]
-        ; add class racket to pre
-    [_ out]))
+      (extract-highlight (compose1 parenthesize) out "racket")]
+    [_ (extract-highlight (lambda (lst)
+        (for/list ([x lst])
+          (cond
+            [(and (list? x) (hash-has-key? store (last x)))(println (hash-ref store (last x))) (hash-ref store (last x))]
+            [else x]))) out "other")]))
 
 (define (see-more) `(see-more))
 
@@ -129,13 +145,16 @@
 
 (define (ids . s) s)
 
+; From https://afeld.github.io/emoji-css/
 (define (emj s)
   (define class (match s
     [":P" "em-stuck_out_tongue"]
     [":)" "em-smiley"]
     [":(" "em-disappointed"]
-    [else `(span ((class "unmatched-emoji")) ,s)]))
-  (if (string? s) `(i ((class ,(string-append "em " class)))) s))
+    [":D" "em-grinning"]))
+  `(i ((class ,(string-append "em " class)))))
+
+(define (edited-on . xs) (! (list '(br) (apply emph (cons "Edited on " xs)))))
 
 (define (link url . texts) `(a ((href ,url))
   ,(match texts
@@ -166,7 +185,8 @@
 (define ($$ . xs)
   `(mathjax ,(! `("$$" ,@xs "$$"))))
 
-(define (proof #:wrong [wrong #f] . xs) `(div ,@xs))
+(define (proof #:wrong [wrong #f] . xs) `(div [[class "proof"]] (span [[class "subproof"]] (i "Proof. ") ,@xs) ))
+(define (lemma . xs) `(div [[class "lemma"]] (b "Lemma ") ,@xs))
 
 (define (pre #:options options . xs)
   (define hash #hasheq((allowed-math . "tex2jax_process")))
@@ -210,6 +230,9 @@
 
 (define (img path #:width [width "40%"])
   `(img [[src ,path] [style ,(string-append "width:" width)]]))
+
+(define (figure path #:width [width "40%"] #:caption [caption '()])
+  `(center ,(img path #:width width) (br) ,@caption))
 
 (define (task . xs) `(u ,@xs))
 
