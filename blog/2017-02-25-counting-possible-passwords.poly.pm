@@ -152,7 +152,7 @@ How can we be sure that this new program is indeed correct? We can create an ora
 
 Now we have an @${O(3^n)} algorithm. Can we do better? The answer is yes! We will use dynamic programming to help improving the runtime to linear!!
 
-Let @${T[n, g, s, d, l]} indicates the number of possible words with length @${n}, ending with a character in group @${g \in \set{0, 1, 2}}, containing at least one symbol iff @${s = 1}, containing at least one digit iff @${d = 1}, and containing at least one letter iff @${l = 1}, where @${s, d, l \in \set{0, 1}} The recurrence equation now becomes apparent.@numbered-note{I'm just too lazy to explain, but it's not hard to see. If I were to write a textbook, this would be the time that I write the infamous "left as an exercise"} This yields a linear time algorithm. Additionally, the algorithm takes constant amount of memory!
+Let @${T[n, g, s, d, l]} indicates the number of possible words with length @${n}, ending with a character in group @${g \in \set{0, 1, 2}}, containing at least one symbol iff @${s = 1}, containing at least one digit iff @${d = 1}, and containing at least one letter iff @${l = 1}, where @${s, d, l \in \set{0, 1}} The recurrence equation now becomes apparent.@numbered-note{I'm just too lazy to explain, but it's not hard to see. If I were to write a textbook, this would be the time that I write the infamous "left as an exercise"}
 
 @highlight['python]|{
   def count_dp(num_symbols, num_digits, num_letters, length):
@@ -162,30 +162,35 @@ Let @${T[n, g, s, d, l]} indicates the number of possible words with length @${n
       sizes = [num_symbols, num_digits, num_letters]
       groups = [0, 1, 2]
       binary = [0, 1]
-      dp_template = {(g, hs, hd, hl): 0 for hs in binary
+      dp_template = {(g, hs, hd, hl): 0 for g in groups
+                                        for hs in binary
                                         for hd in binary
-                                        for hl in binary
-                                        for g in groups}
+                                        for hl in binary}
       dp_new = dict(dp_template)
-      dp_new[SYMBOL,1,0,0] = 0 # the first character can't be a symbol
-      dp_new[DIGIT,0,1,0] = sizes[DIGIT]
-      dp_new[LETTER,0,0,1] = sizes[LETTER]
+      dp_new[SYMBOL, 1, 0, 0] = 0 # the first character can't be a symbol
+      dp_new[DIGIT,  0, 1, 0] = sizes[DIGIT]
+      dp_new[LETTER, 0, 0, 1] = sizes[LETTER]
 
       for i in range(1, length):
           dp_old = dp_new
           dp_new = dict(dp_template)
           for g in groups:
-              for hs in [1] + ([0] if g != 0 else []):
-                  for hd in [1] + ([0] if g != 1 else []):
-                      for hl in [1] + ([0] if g != 2 else []):
-                          for prevg in groups:
-                              dp_new[g,hs,hd,hl] += (
-                                  dp_old[prevg,hs,hd,hl] +
-                                  (dp_old[prevg,0,hd,hl] if g == SYMBOL and hs else 0) +
-                                  (dp_old[prevg,hs,0,hl] if g == DIGIT and hd else 0) +
-                                  (dp_old[prevg,hs,hd,0] if g == LETTER and hl else 0)
-                              ) * (sizes[g] - (1 if g == prevg else 0))
-      return dp_new[DIGIT,1,1,1] + dp_new[LETTER,1,1,1]
+              space = [(hs, hd, hl) for hs in binary
+                                    for hd in binary
+                                    for hl in binary]
+              for hs, hd, hl in [t for t in space if t[g] != 0]:
+                  for prevg in groups:
+                      dp_new[g,hs,hd,hl] += (
+                          dp_old[prevg, hs, hd, hl] +
+                          (dp_old[prevg, 0, hd, hl] if g == SYMBOL and hs else 0) +
+                          (dp_old[prevg, hs, 0, hl] if g == DIGIT and hd else 0) +
+                          (dp_old[prevg, hs, hd, 0] if g == LETTER and hl else 0)
+                      ) * (sizes[g] - (1 if g == prevg else 0))
+      return dp_new[DIGIT, 1, 1, 1] + dp_new[LETTER, 1, 1, 1]
 
   print(oracle(count_dp, count)) #=> True
 }|
+
+This yields a linear time algorithm. Additionally, the algorithm takes constant amount of memory!
+
+FIN @emj{:)}
