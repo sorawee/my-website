@@ -1,5 +1,9 @@
 #lang pollen
 
+body .main-content {
+  font-family: "Fira Sans";
+}
+
 /* from https://developer.mozilla.org/en-US/docs/Tools/Page_Inspector/Keyboard_shortcuts */
 .main-content kbd {
   background-color: #f4f7f8;

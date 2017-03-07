@@ -3,7 +3,7 @@
 @(define-meta title "Counting Possible Passwords")
 @(define-meta tags (dynamic-programming programming))
 
-Jack showed this @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal/login/help/listPasswordRules.htm"]{page}, the rules for password naming in this website, to me. Here's an excerpt:
+Jack showed this @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal/login/help/listPasswordRules.htm"]{the rules for password naming} in a website to me. Here's an excerpt:
 
 @bquote{
   @numberlist[
@@ -41,7 +41,7 @@ I'm terrified.
 
 @see-more[]
 
-This reminds both Jack and me an xkcd comic @link["https://xkcd.com/936/"]{"Password Strength"}. As the comic states, through 20 years of effort, we've successfully trained everyone to use passwords that are hard for humans to remember, but easy for computers to guess. For this website, it's even worse because the website itself forces users to abide these non-sense rules.
+This reminds me of an xkcd comic @link["https://xkcd.com/936/"]{"Password Strength"}. As the comic states, through 20 years of effort, we've successfully trained everyone to use passwords that are hard for humans to remember, but easy for computers to guess. For this website, it's even worse because the website itself forces users to abide these non-sense rules.
 
 What we are more interested, however, is to count how many possible passwords there are! We will consider only rule 1 to 5, as the rest is about specific names or previous passwords which would be hard to define mathematically.
 
@@ -114,9 +114,9 @@ To reduce the running time, notice that all numbers/letters/symbols look the sam
       return total
 }|
 
-The algorithm now has runtime @${O(3^n)}! The tricky part is excluding string which has the same characters adjacent to each other. To do this, we notice that if the group (type of the character -- letter, digit, or symbol) matches the previous group, then instead of having all choices, we would lose one choice since it's the same as the previous one.@numbered-note{This, by the way, is the first time I use Python 3's @code{nonlocal}.}
+The above algorithm has runtime @${O(3^n)}! The tricky part is excluding string which has the same characters adjacent to each other. To do this, we notice that if the group (type of the character -- letter, digit, or symbol) matches the previous group, then instead of having all choices, we would lose one because it's the same as the previous character.@numbered-note{This, by the way, is the first time I use Python 3's @code{nonlocal}.}
 
-Now computing the answer is feasible.
+Computing the answer is now feasible (only one second!).
 
 @highlight['bash]|{
   $ python3 -i count.py
@@ -152,7 +152,7 @@ How can we be sure that this new program is indeed correct? We can create an ora
 
 Now we have an @${O(3^n)} algorithm. Can we do better? The answer is yes! We will use dynamic programming to help improving the runtime to linear!!
 
-Let @${T[n, g, s, d, l]} indicates the number of possible words with length @${n}, ending with a character in group @${g \in \set{0, 1, 2}}, containing at least one symbol iff @${s = 1}, containing at least one digit iff @${d = 1}, and containing at least one letter iff @${l = 1}, where @${s, d, l \in \set{0, 1}} The recurrence equation now becomes apparent.@numbered-note{I'm just too lazy to explain, but it's not hard to see. If I were to write a textbook, this would be the time that I write the infamous "left as an exercise"}
+Let @${T[n, g, s, d, l]} indicates the number of possible words with length @${n}, ending with a character in group @${g \in \set{0, 1, 2}}, containing at least one symbol iff @${s = 1}, containing at least one digit iff @${d = 1}, and containing at least one letter iff @${l = 1}, where @${s, d, l \in \set{0, 1}}. The recurrence equation now becomes apparent.@numbered-note{I'm just too lazy to explain, but it's not hard to see. If I were to write a textbook, this would be a good opportunity to write the infamous "left as an exercise"}
 
 @highlight['python]|{
   def count_dp(num_symbols, num_digits, num_letters, length):

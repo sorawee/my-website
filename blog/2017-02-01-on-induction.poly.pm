@@ -39,4 +39,25 @@ To be formal, we will derive @${(P(0) \land \forall x. (\forall y < x. P(y) \-> 
 
 @/h3{Equivalence of Weak Induction and Strong Induction}
 
+@highlight['coq]|{
+Require Import Omega.
+
+Definition NProp := nat -> Prop.
+Theorem weak_eq_to_strong :
+  (forall P : NProp, P 0 -> (forall n, P n -> P (S n)) -> forall n, P n) <->
+  (forall P : NProp, (forall n, (forall m, (m < n) -> P m) -> P n) -> forall n, P n).
+Proof.
+  split.
+  - intros ind_w P ind_H_s n.
+    apply (ind_w (fun k => ((forall x, x <= k -> P x)))) with (n := n); intuition.
+    + inversion H; intuition.
+      apply ind_H_s; intuition.
+      inversion H1.
+  - intros; intuition.
+    apply H; intuition.
+    destruct n0; intuition.
+Qed.
+}|
+
+
 Not Yet Written
