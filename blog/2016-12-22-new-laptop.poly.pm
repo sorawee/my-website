@@ -12,13 +12,14 @@ Following are my settings. I write these particularly for myself in the future s
 @/see-more[]
 
 @highlight['sh]|{
-# get terminator to make split vertically/horizontally possible
-# I am sad that terminator doesn't have "search highlight" though.
-sudo apt-get install terminator
-gsettings set org.gnome.desktop.default-applications.terminal exec 'terminator'
+# get a good terminal
+sudo add-apt-repository ppa:webupd8team/terminix
+sudo apt update
+sudo apt install tilix
+gsettings set org.gnome.desktop.default-applications.terminal exec 'tilix'
 
 # get zsh for history substring search and other cool stuff
-sudo apt-get install zsh
+sudo apt install zsh
 zsh
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 setopt EXTENDED_GLOB
@@ -73,6 +74,8 @@ alias emacs='emacs -nw'
 # use it like this: run_long_command; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
 "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+# reset the network
+alias rnet='sudo systemctl restart NetworkManager.service'
 }|
 
 I like OS X's @code{open} a lot. Here we have @code{xdg-open}, but it vomits a lot of text while running in background. Thus, I created:
@@ -86,49 +89,51 @@ xdg-open $@ &> /dev/null
 There are a bunch of other programs I want to install
 
 @highlight['sh]|{
-sudo apt-get install emacs24 # or emacs25, 26, whatever you want
+sudo apt install emacs24 # or emacs25, 26, whatever you want
 
-sudo apt-get install atom
+sudo apt install atom
 
-sudo apt-get install clipit
+sudo apt install clipit
 
-sudo apt-get install liferea
+sudo apt install liferea
 
-sudo apt-get install powertop tlp tp-smapi-dkms acpi-call-dkms
+sudo apt install powertop tlp tp-smapi-dkms acpi-call-dkms
 sudo tlp start
 
-sudo apt-get install unity-tweak-tool
+sudo apt install unity-tweak-tool
 sudo add-apt-repository ppa:numix/ppa
-sudo apt-get install numix-icon-theme-square numix-gtk-theme
+sudo apt install numix-icon-theme-square numix-gtk-theme
 # and then set the theme and icon, and get 2x2 workspace
 
-sudo apt-get install gnome-settings-daemon gnome-control-center
+sudo apt install gnome-settings-daemon gnome-control-center
 
-sudo apt-get install chromium-browser
+sudo apt install chromium-browser
 # vivaldi is also great
 
-sudo apt-get install gimp # current version is gimp2.8
+sudo apt install gimp # current version is gimp2.8
 wget https://github.com/jedireza/gimp-hidpi/archive/master.zip
 unzip master.zip -d ~/.gimp-2.8/themes
 # need to add the theme in gimp's setting too
 rm master.zip
 
-sudo apt-get install texlive-full
+sudo apt install texlive-full texstudio
+
+sudo apt install caffeine
 
 sudo add-apt-repository ppa:jconti/recent-notifications
-sudo apt-get install indicator-notifications
+sudo apt install indicator-notifications
 
-sudo apt-get install rustc
+sudo apt install rustc
 
 sudo add-apt-repository "deb https://cli-assets.heroku.com/branches/stable/apt ./"
 curl -L https://cli-assets.heroku.com/apt/release.key | sudo apt-key add -
-sudo apt-get install heroku
+sudo apt install heroku
 gem install bundler
-sudo apt-get install ruby-dev
-sudo apt-get install libmysqlclient-dev
+sudo apt install ruby-dev
+sudo apt install libmysqlclient-dev
 
 sudo add-apt-repository ppa:nilarimogard/webupd8
-sudo apt-get install gloobus-preview gloobus-sushi
+sudo apt install gloobus-preview gloobus-sushi
 
 sudo apt install libavcodec-extra
 
@@ -148,28 +153,28 @@ sudo rm ttf-mscorefonts-installer
 sudo apt install adobe-flashplugin
 
 # after setting up gpg
-sudo apt-get install pass
+sudo apt install pass
 pass init GPG_KEY
 pass git init
 
-sudo apt-get install psensor
+sudo apt install psensor
 
-sudo apt-get install redshift redshift-gtk
+sudo apt install redshift redshift-gtk
 
 sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get install oracle-java8-installer
+sudo apt install oracle-java8-installer
 
 sudo add-apt-repository ppa:plt/racket
-sudo apt-get install racket
+sudo apt install racket
 raco pkg install pollen
-sudo apt-get install python-setuptools
+sudo apt install python-setuptools
 sudo easy_install --upgrade Pygments
 
-sudo apt-get install dropbox
-sudo apt-get install xournal
+sudo apt install dropbox
+sudo apt install xournal
 
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-sudo apt-get install -y nodejs
+sudo apt install -y nodejs
 }|
 
 @link["github.com/phw/peek"]{Peek} is a screen recorder program which produces GIF as the output. However, it needs an additional configuration to avoid freezing computer:
@@ -378,7 +383,7 @@ And drag all of these to the Unity bar. Also drag @code{/usr/share/applications/
 I managed to get auto-rotation to work! First:
 
 @highlight['bash]{
-  sudo apt-get install iio-sensor-proxy
+  sudo apt install iio-sensor-proxy
   systemctl start iio-sensor-proxy.service
 }
 

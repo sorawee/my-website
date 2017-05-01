@@ -46,7 +46,7 @@
   (define (extract-highlight f out class)
     (match out
       [`(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ,things-in-pre ...)) "\n")))) "\n")
-       `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class ,(string-append class " tex2jax_process"))) ,@(f things-in-pre))) "\n")))) "\n")]))
+       `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class ,(string-append class #;" tex2jax_process"))) ,@(f things-in-pre))) "\n")))) "\n")]))
 
   (match lang
     ['racket
