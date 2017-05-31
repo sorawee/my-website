@@ -12,9 +12,10 @@ Following are my settings. I write these particularly for myself in the future s
 @/see-more[]
 
 @highlight['sh]|{
+## run `sudo apt update` as appropriate
+
 # get a good terminal
 sudo add-apt-repository ppa:webupd8team/terminix
-sudo apt update
 sudo apt install tilix
 gsettings set org.gnome.desktop.default-applications.terminal exec 'tilix'
 
@@ -91,7 +92,14 @@ There are a bunch of other programs I want to install
 @highlight['sh]|{
 sudo apt install emacs24 # or emacs25, 26, whatever you want
 
+sudo add-apt-repository ppa:webupd8team/atom
 sudo apt install atom
+
+sudo add-apt-repository ppa:webupd8team/mtpaint
+sudo apt install mtpaint
+
+sudo apt-add-repository ppa:achadwick/mypaint-testing
+sudo apt install mypaint mypaint-data-extras
 
 sudo apt install clipit
 
@@ -177,16 +185,12 @@ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt install -y nodejs
 }|
 
-@link["github.com/phw/peek"]{Peek} is a screen recorder program which produces GIF as the output. However, it needs an additional configuration to avoid freezing computer:
+@link["github.com/phw/peek"]{Peek} is a screen recorder program which produces GIF as the output.
 
 @highlight['bash]|{
-  # the current version is 0.8.0.
-  wget https://github.com/phw/peek/releases/download/v0.8.0/peek-0.8.0-Linux.deb
-  sudo dpkg -i peek-0.8.0-Linux.deb
-  rm peek-0.8.0-Linux.deb
+  sudo add-apt-repository ppa:peek-developers/stable
+  sudo apt install peek
 }|
-
-Then edit @code{/usr/share/applications/com.uploadedlobster.peek.desktop}'s Exec to @code{TMPDIR=/var/tmp MAGICK_TMPDIR=/var/tmp MAGICK_TEMPORARY_PATH=/var/tmp peek}.
 
 As a non-English speaker, I use dictionaries a lot. I also want it to be offline. The best program I could fine (which is also the same one I used 4 years ago) is @code{goldendict}. Here's the setup:
 

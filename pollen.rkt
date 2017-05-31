@@ -212,6 +212,7 @@
 (define (under . xs) `(u ,@xs))
 (define (strike . xs) `(s ,@xs))
 (define (code . xs) `(code ,@xs))
+(define (tt . xs) `(tt ,@xs))
 
 (define (outdated . xs)
   `(div [[class "outdated"]]
