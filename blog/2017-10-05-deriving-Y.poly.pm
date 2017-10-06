@@ -39,7 +39,7 @@ Now, the goal is to write the factorial function without using @code{define} whi
          (lambda (n) (if (zero? n)
                          1
                          (* n (fact (sub1 n)))))]]
-       (fact 10))
+    (fact 10))
 }|
 
 But this doesn't work because with static scope, @code{fact} is unbound inside the lambda function that is going to be @code{fact} itself.
@@ -99,7 +99,7 @@ Now we desugar @code{let} back to @code{lambda} and application to obtain:
 
 which is the other mysterious, well-known @${\Omega} combinator!
 
-Now, back to the main topic, the question that we should ask next is, are we satisfied with this way to write an arbitrary recursive function in lambda calculus? As it turned out, some people are dissatisfied because the transformed function doesn't look like the original function that we would write in the @code{define} version. In fact, their goal is to try to make the transformed function look close enough to the original function, and @emph{abstract} the part that looks like the original factorial function out. The result is a function that enables other functions to be recursive while meintaining their original form.
+Now, back to the main topic, the question that we should ask next is, are we satisfied with this way to write an arbitrary recursive function in lambda calculus? As it turned out, some people are dissatisfied because the transformed function doesn't look like the original function that we would write in the @code{define} version. In fact, their goal is to try to make the transformed function look close enough to the original function, and @emph{abstract} the part that looks like the original factorial function out. The result is a function that enables other functions to be recursive while maintaining their original form.
 
 As a first step, we can transform:
 
@@ -138,7 +138,7 @@ The body of the function is in fact now very similar to the original function th
     ((fact fact) 10))
 }|
 
-The @code{(let [[fact ...]])} inside the lambda does not depend on the parameter @code{n} of the outter lambda function, so we can lift it up without changing the semantics:
+The @code{(let [[fact ...]] ...)} inside the lambda does not depend on the parameter @code{n} of the outter lambda function, so we can lift it up without changing the semantics:
 
 @highlight['racket]|{
   (let [[fact
@@ -173,7 +173,7 @@ out as @code{fact} would then be unbound. But if we were to abstract the whole:
             (* n (fact (sub1 n)))))))
 }|
 
-That would be too ugly.
+it would be too ugly.
 
 What can we do? We see a @code{let}, so let's desugar it again:
 
