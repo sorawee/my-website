@@ -7,7 +7,7 @@ In this post, I will write about three kinds of inductions: weak induction, stro
 
 Anyway, for the sake of this article, we will do use these terms for clarity and show the following.
 
-@see-more[]
+@see-more
 
 @/h3{Strong Induction Doesn't Need A Base Case}
 

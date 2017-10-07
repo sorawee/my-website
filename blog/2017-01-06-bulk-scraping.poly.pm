@@ -5,7 +5,7 @@
 
 One of my friends who is a non-CS concentrator would like to scrape emails of all faculties listed in @link["http://engineering.vanderbilt.edu/eecs/faculty-staff/index.php"]{this website}. Unfortunately, the emails are not on the page itself, but are on subpages. It would take forever to scrape the data by hand, so I helped. To do this, I need to send multiple requests to scrape each subpage. Naively, we would send a request, wait for a response, then repeat until we go over all list of faculties. This however would take a lot of time. We can do better by sending requests asynchronously. This is feasible because there is no dependency in the data.
 
-@/see-more[]
+@see-more
 
 But first, let's consider a naive implementation that doesn't exploit asynchronicity:
 

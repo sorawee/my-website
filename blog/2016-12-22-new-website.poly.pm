@@ -9,7 +9,7 @@ In the previous attempts, I hosted my blog with blog sites such as Wordpress or 
 
 And, you see, the blog content is not that important. The most crucial thing is to get the technology right@numbered-note{I'm being sarcastic @emj{:P}}. What I'm using right now is called @link["http://pollenpub.com/"]{Pollen} markup, which is pretty much a domain-specific language based on Racket's @link["https://docs.racket-lang.org/scribble/reader.html"]|{@-syntax}|. Pollen sets up a server which recompiles files automatically whenever it detects file changes. The markup itself is very cool in a sense that you just write whatever you want to write with arbitrary made-up semantics tags, which is very pleasant to write using the said syntax. Then, you can go back and define and format what those tags are supposed to be. The programming part is equally pleasant because it has @link["https://docs.racket-lang.org/xml/"]{X-Expression} which is a cool version of XML. Pollen supports outputting multiple targets: @LaTeX[], @code{html}, plain text, or whatever you want to output. Basically, you program the document, so you have an unlimited power to do whatever you want.
 
-@/see-more[]
+@see-more
 
 Now it's time to show off what it can do:
 

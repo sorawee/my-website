@@ -5,7 +5,7 @@
 
 I have been hearing people saying that first-order logic is undecidable. Last semester, I took both theory of computation and first-order logic classes, and they, too, kept repeating that without proving it. However, now I have basic knowledge of theory of computation and first-order logic. So, fine, I will prove it now!
 
-@/see-more[]
+@see-more
 
 @/h3{Definition}
 

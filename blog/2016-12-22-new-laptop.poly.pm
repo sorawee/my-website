@@ -9,7 +9,7 @@ A lot of my friends suggested me to get a Thinkpad X1 Yoga which looks really co
 
 Following are my settings. I write these particularly for myself in the future so that when I need to set things up again, I won't have to spend a lot of time figuring out what to do!
 
-@/see-more[]
+@see-more
 
 @highlight['sh]|{
 ## run `sudo apt update` as appropriate

@@ -39,7 +39,7 @@ Jack showed this @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal
 
 I'm terrified.
 
-@see-more[]
+@see-more
 
 This reminds me of an xkcd comic @link["https://xkcd.com/936/"]{"Password Strength"}. As the comic states, through 20 years of effort, we've successfully trained everyone to use passwords that are hard for humans to remember, but easy for computers to guess. For this website, it's even worse because the website itself forces users to abide these non-sense rules.
 

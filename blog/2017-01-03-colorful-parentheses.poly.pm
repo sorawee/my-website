@@ -9,7 +9,7 @@ I tried to learn @link["https://en.wikipedia.org/wiki/Continuation"]{continuatio
 
 This post, of course, explains how I managed to get it on my website!
 
-@/see-more[]
+@see-more
 
 @highlight['racket]|{
   (define x (+ 1 (+ 3 (+ 2 4) (+ 9 9))))

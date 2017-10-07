@@ -7,9 +7,9 @@ Y combinator seems to be something mysterious. @link["https://cs.stackexchange.c
 
 Recently I thought about the fixed point combinator again and finally gained some good insight. I think it's worth sharing here.
 
-@see-more[]
+@see-more
 
-In lambda calculus, also known as the language of functions, an expression @code{e} is either:
+In lambda calculus, an expression @code{e} is either:
 
 @itemlist[
   @item{@code{x}; identifier}

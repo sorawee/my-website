@@ -7,7 +7,7 @@
 
 I don't know if @link["https://en.wikipedia.org/wiki/RSS"]{RSS} or @link["https://en.wikipedia.org/wiki/Atom_(standard)"]{Atom} are still popular or not. I personally use them a lot. Here are some examples of the feeds that I subscribed.
 
-@/see-more[]
+@see-more
 
 
 @itemlist[

@@ -6,7 +6,7 @@
 Wandering around in Wikipedia yesterday, I found this article: @emph{@link["https://en.wikipedia.org/wiki/Lemmings_(video_game)"]{Lemmings}}. Though I never play this game before,  I have played its open-source clone, @emph{@link["https://pingus.seul.org"]{Pingus}}, which is really enjoyable@numbered-note{I in fact have devised a pretty good @link["https://www.youtube.com/watch?v=Wdl9bBUmU-k"]{strategy} for a level several years ago.
 @edited-on{February 25, 2017}: @link["https://www.youtube.com/watch?v=ZxqKr5DMTDI"]{someone} broke my record! @emj{:D}}. This post is written to pay tribute to this wonderful game.
 
-@/see-more[]
+@see-more
 
 @figure["https://upload.wikimedia.org/wikipedia/en/0/0c/Lemmings-BoxScan.jpg"]
 

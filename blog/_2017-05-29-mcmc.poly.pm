@@ -5,7 +5,7 @@
 
 I just finished my 6@^{th} semester! One of the classes that I took is @emph{Probabilistic Methods in Computer Science}. Some topics in the class are really useful. Unfortunately, as it's a pure theory class, there is no programming at all. Don't get me wrong. I in fact really like theory classes, but for this one, I really think that programming (either as an assignment or a demonstration in the class) would make the class more interesting, and would give students a moment of "wow, that's cool!" more. So in this post, I will write about the Markov Chain Monte Carlo method (by random walk), the topic I like most, along with a demonstration using Python.
 
-@see-more[]
+@see-more
 
 The Markov Chain Monte Carlo method is a general approach to sample a data from a desired distribution. For me, I use this all the time for software verification. The most basic way to test that a program is correct is to test it with all possible inputs, but in practice, this is nearly impossible as there are a huge amount of possible inputs. Instead, we can randomly generate a small amount of inputs and test the program with them. Hopefully, the generated inputs will be good representations of all possible inputs, and if the program is correct on those inputs, probably it's correct on other inputs too. There are also other reasons one might need to sample data. Perhaps for estimating something. Perhaps for simulating something. Or perhaps you want to play Catan but don't have dice.
 

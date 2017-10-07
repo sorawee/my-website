@@ -90,7 +90,7 @@
             [(and (list? x) (hash-has-key? store (last x)))(println (hash-ref store (last x))) (hash-ref store (last x))]
             [else x]))) out "other")]))
 
-(define (see-more) `(see-more))
+(define see-more `(see-more))
 
 (define super-title "Sorawee's Website")
 (define (! lst) `(@ ,@lst))
