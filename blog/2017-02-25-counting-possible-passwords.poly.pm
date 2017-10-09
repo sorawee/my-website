@@ -5,7 +5,7 @@
 
 Jack showed this @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal/login/help/listPasswordRules.htm"]{the rules for password naming} in a website to me. Here's an excerpt:
 
-@bquote{
+@blockquote{
   @numberlist[
     @item{The password must be exactly 8 characters long.}
     @item{It must contain at least one letter, one number, and one of the following special characters.}

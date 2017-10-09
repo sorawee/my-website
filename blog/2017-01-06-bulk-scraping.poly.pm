@@ -59,7 +59,7 @@ also takes 20 seconds. The disadvantage of this approach is that it could produc
 
 I guess we can instead append to a file to tidy this up, but then it becomes more verbose. Plus, it @link["http://stackoverflow.com/questions/2443786/is-it-safe-to-pipe-the-output-of-several-parallel-processes-to-one-file-using"]{doesn't always} work.
 
-Lastly, one can also use a sledgehammer to @/strike{crack a nut} scrape pages: @link["https://scrapy.org"]{Scrapy}! There are four steps:
+Lastly, one can also use a sledgehammer to @strike{crack a nut} scrape pages: @link["https://scrapy.org"]{Scrapy}! There are four steps:
 
 @numberlist[
   @item{Generate a project: @code{scrapy startproject basic-scraper}}

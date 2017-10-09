@@ -19,7 +19,7 @@ Let @${r, c} be the number of rows and columns of the map respectively. Initiall
 @(button "start" "Start") @(button "stop" "Stop") @(button "reset" "Reset")
 @(canvas "game")
 
-@/script|{
+@script|{
   const map = [
     "#####.###.##",
     "###.#####.##",
@@ -289,9 +289,9 @@ Then, to test:
 
 does not raise any error, indicating that the answers are correct.
 
-@/h2{Explanation}
+@subsection{Explanation}
 
-@/h3{First Task}
+@subsubsection{First Task}
 
 The naive way to solve the first task is to simulate all possible configurations (in the order of @${O(c)}). Simulation is feasible because any initial configurations will lead to either a treasure box or a bottomless sewer drain eventually, so the simulation will terminate. However, a map like this:
 
@@ -396,7 +396,7 @@ Regarding the time complexity, for each @${i, j, d}, we compute @${W_{i, j, d}} 
 
 To finish the first task, we need to calculate an answer, and this is straightforward: it's just the sum of number of ways to get to all treasure boxes, from both @${L} and @${R} directions. This corresponds to line 62.
 
-@/h3{Second Task}
+@subsubsection{Second Task}
 
 The naive way would be to try removing each block at a time in the map, and run the first task's algorithm to evaluate how many initial configurations that will lead to a treasure box increases after the removal. However, the number of blocks is in order of @${O(rc)}, and the algorithm in the first task takes @${O(rc)}. This would result in an @${O((rc)^2)}-algorithm. Bad!
 

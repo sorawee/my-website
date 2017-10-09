@@ -98,6 +98,6 @@ And set it to read source from the first agent. This completes the setup in Hugi
 
 Huginn then provides us a URL to access the data. The XML one in particular is in RSS format (it's actually Atom, but I will call them interchangably), so copy that one and paste it in an RSS reader.
 
-@/center{@img["/blog/img/huginn-feed.png" #:width "90%"]}
+@center{@img["/blog/img/huginn-feed.png" #:width "90%"]}
 
 @emj{:)}

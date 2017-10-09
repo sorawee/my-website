@@ -9,7 +9,7 @@ Anyway, for the sake of this article, we will do use these terms for clarity and
 
 @see-more
 
-@/h3{Strong Induction Doesn't Need A Base Case}
+@subsection{Strong Induction Doesn't Need A Base Case}
 
 Weak Induction states: for any proposition @${P}, @${(P(0) \land \forall x. (P(x) \-> P(x + 1))) \-> \forall x. P(x)}. One must prove both @${P(0)} which is known as @emph{base case} and @${\forall x. (P(x) \-> P(x + 1))} which is known as @emph{inductive case} to show that @${P} holds for every natural number. One common mistake is, sometimes we forget to prove the base case, so we will be able to (incorrectly) prove something clearly wrong like @${\forall x. x > x + 1}. Let's actually try this:
 
@@ -37,7 +37,7 @@ To be formal, we will derive @${(P(0) \land \forall x. (\forall y < x. P(y) \-> 
   @${(\<-)} Suppose @${(\forall x. ((\forall y < x. P(y)) \-> P(x))) \-> \forall x. P(x)}. Our goal is to show that @${(P(0) \land \forall x. ((\forall y < x. P(y)) \-> P(x))) \-> \forall x. P(x)}. By the deduction theorem, assume @${P(0)} and @${\forall x. ((\forall y < x. P(y)) \-> P(x))}, we then only need to prove @${\forall x. P(x)}. But with @${\forall x. ((\forall y < x. P(y)) \-> P(x))}, we can use the first hypothesis to obtain @${\forall x. P(x)}, finishing the proof.
 }
 
-@/h3{Equivalence of Weak Induction and Strong Induction}
+@subsection{Equivalence of Weak Induction and Strong Induction}
 
 @highlight['coq]|{
 Require Import Omega.

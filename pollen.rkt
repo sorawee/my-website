@@ -13,6 +13,11 @@
 (provide highlight
          make-highlight-css
          string-contains
+         take
+         drop
+         cons?
+         empty?
+         empty
          ->markup-source-path
          (all-defined-out))
 
@@ -29,7 +34,7 @@
           #:exclude-tags '(style script pre code)
           #:exclude-attrs (list exclusion-mark-attr)))
 
-(define (bquote . xs) `(blockquote ,@xs))
+(define (blockquote . xs) `(blockquote ,@xs))
 
 (define (highlight lang . code-original)
   (define store (make-hash))
@@ -213,6 +218,12 @@
 (define (strike . xs) `(s ,@xs))
 (define (code . xs) `(code ,@xs))
 (define (tt . xs) `(tt ,@xs))
+(define (script #:src [src #f] . xs)
+  (if src `(script [[src ,src]]) `(script ,@xs)))
+(define (center . xs) `(center ,@xs))
+(define (subsection . xs) `(h2 ,@xs))
+(define (subsubsection . xs) `(h3 ,@xs))
+(define (phantom . xs) `(div [[style "display: none"]] ,@xs))
 
 (define (outdated . xs)
   `(div [[class "outdated"]]
@@ -238,7 +249,7 @@
 (define (task . xs) `(u ,@xs))
 
 (define (notice . xs) `(i ,@xs))
-(define (migration-notice) (notice "This is a post migrated from my old blog."))
+(define (migration-notice) (notice "This post is migrated from my old blog."))
 
 (define (eng . xs) (! (append (list "(ภาษาอังกฤษ: ") xs (list ")"))))
 

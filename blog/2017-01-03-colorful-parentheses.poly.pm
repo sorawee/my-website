@@ -5,7 +5,7 @@
 
 I tried to learn @link["https://en.wikipedia.org/wiki/Continuation"]{continuations} yesterday. This led me to a @link["http://community.schemewiki.org/?p=composable-continuations-tutorial"]{tutorial for composable continuations} in schemewiki.org. It explains things nicely, but what really intrigues me is something completely different: the colorful syntax highlight for nested parentheses when hovering cursor over them.
 
-@/center{@img["/blog/img/paren-highlight.png" #:width "50%"]}
+@center{@img["/blog/img/paren-highlight.png" #:width "50%"]}
 
 This post, of course, explains how I managed to get it on my website!
 

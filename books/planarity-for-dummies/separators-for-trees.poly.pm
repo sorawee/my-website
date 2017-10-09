@@ -37,7 +37,7 @@ The figure below illustrates the algorithm. When @${f} is called on ancestors of
 @figure["/books/planarity-for-dummies/tree-separator-2.png" #:width "30%" #:caption
        @ids{Figure 2: Heavy vertex @${z} is a @${\frac{1}{2}}-balanced vertex separator}]
 
-@/h3{Vertex Separator of Vertex Weight}
+@subsection{Vertex Separator of Vertex Weight}
 
 @lemma{
   (Tree Vertex Separator of Vertex Weight) If a tree @${T} has weight on only vertices and not edges, there is a linear time algorithm to find a @${\frac{1}{2}}-balanced vertex separator.
