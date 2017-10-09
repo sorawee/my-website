@@ -64,7 +64,7 @@ However, there is a much bigger problem. Consider:
       | "xx"
 }|
 
-which generates a set of non-empty string of even length with character @code{x}, or, formally @${\set{x^{2n}: n >= 1}}
+which generates a set of non-empty string of even length with character @code{x}, or, formally @${\set{x^{2n}: n \ge 1}}
 
 If we were to write:
 
@@ -72,7 +72,7 @@ If we were to write:
   A <- "x" A "x" / "xx"
 }|
 
-This generates @${\set{x^{2^n}: n >= 1}}!!!!
+This generates @${\set{x^{2^n}: n \ge 1}}!!!!
 
 This is madness! How could the result be so different!
 
@@ -508,7 +508,7 @@ However, there are 6 @code{x} in the input string. This only matches 4, so it di
 
 The problem, in particular, is that at step 24, @code{A3} should be able to change to rule 2 which would then match the whole string. However, it did not because rule 1 is successful, so we backtrack to @code{A2}, completely ignore the possibility.
 
-Note, however, that it's still possible to generate @${\set{x^{2n}: n >= 1}}.
+Note, however, that it's still possible to generate @${\set{x^{2n}: n \ge 1}}.
 
 @highlight['BNF]|{
   A <- "xx" A / "xx"
