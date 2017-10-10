@@ -15,7 +15,8 @@
          string-contains
          take
          drop
-         cons?
+         match
+         define/match
          empty?
          empty
          ->markup-source-path

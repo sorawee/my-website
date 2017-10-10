@@ -78,133 +78,115 @@ This is madness! How could the result be so different!
 
 In particular, the grammar cannot derive @code{xxxxxx} (6 @code{x}). Here, I will show what happens when the parser is trying to parse the string.
 
-@(define step 0)
 @(define (visualize-parser . graph-def)
-  (set! step (add1 step))
-  `(div (div [[id ,(format "parser-viz-~a" step)]])
-      (script ,(format "draw(\"~a\", `~a`)" step (apply string-append graph-def)))))
+  (define unique-id (symbol->string (gensym "parser-viz")))
+  `(div (div [[id ,unique-id]])
+      (script ,(format "draw(\"~a\", `~a`)" unique-id (apply string-append graph-def)))))
 
 @phantom{
   @script[#:src "https://code.jquery.com/jquery-3.2.1.min.js"]
   @script[#:src "/js/viz.js"]
   @script|{
-    function draw(step, graphDef) {
-      const element = document.getElementById("parser-viz-" + step);
+    function draw(uniqueId, graphDef) {
       const newGraphDef = `
 digraph {
-  graph [label="Step ${step}", labelloc=t];
   ${graphDef}
 }`
       const image = Viz(newGraphDef, {format: "png-image-element"});
-      element.appendChild(image);
+      document.getElementById(uniqueId).appendChild(image);
     }
   }|
 }
+
+@(define (label-x n sub mode)
+  (format
+    (match mode
+      ['normal "x~a_~a[label=\"x\", style=\"bold\"];\n"]
+      ['match "x~a_~a[label=\"x\", style=\"filled,bold\", fillcolor=yellow];\n"]
+      ['unmatch "x~a_~a[label=\"x\", style=\"filled,bold\", fillcolor=orange];\n"])
+    n sub))
+
+@(define (label-A n mode)
+  (format
+    (match mode
+      ['normal "A~a[style=\"bold\"];\n"]
+      ['active "A~a[color=blue, style=\"bold\"];\n"]
+      ['unmatch "A~a[style=\"filled,bold\", fillcolor=orange];\n"]
+      ['unmatch-active "A~a[color=blue, style=\"filled,bold\", fillcolor=orange];\n"]
+      ['match "A~a[style=\"filled,bold\", fillcolor=yellow];\n"]
+      ['match-active "A~a[color=blue, style=\"filled,bold\", fillcolor=yellow];\n"])
+    (add1 n)))
 
 @(define (rule-1 n)
   (format (string-append "A~a -> x~a_1\n"
                          "A~a -> A~a\n"
                          "A~a -> x~a_2\n") n n n (add1 n) n n))
 
-@(define (declare-rule-1 n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "A~a;"
-                         "x~a_2[label=\"x\"];") n (add1 n) n))
+@(define (declare-rule-1 n . args)
+  (match args
+    [(list) (string-append (label-x n 1 'match) (label-A n 'normal) (label-x n 2 'normal))]
+    [(list a b c) (string-append (label-x n 1 a) (label-A n b) (label-x n 2 c))]))
 
-@(define (declare-rule-1-active n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "A~a[color=blue];"
-                         "x~a_2[label=\"x\"];") n (add1 n) n))
-
-@(define (declare-rule-1-defeated-1 n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=orange];\n"
-                         "A~a;"
-                         "x~a_2[label=\"x\"];") n (add1 n) n))
-
-@(define (declare-rule-1-defeated-2 n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "A~a[style=\"filled\", fillcolor=orange];"
-                         "x~a_2[label=\"x\"];") n (add1 n) n))
-
-@(define (declare-rule-1-defeated-3 n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "A~a[style=\"filled\", fillcolor=yellow];"
-                         "x~a_2[label=\"x\", style=\"filled\", fillcolor=orange];") n (add1 n) n))
-
-@(define (declare-rule-1-success n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "A~a[style=\"filled\", fillcolor=yellow];"
-                         "x~a_2[label=\"x\", style=\"filled\", fillcolor=yellow];") n (add1 n) n))
-
-@(define (declare-rule-1-defeated-2-active n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "A~a[style=\"filled\", fillcolor=orange, color=blue];"
-                         "x~a_2[label=\"x\"];") n (add1 n) n))
 
 @(define (rule-2 n)
   (format (string-append "A~a -> x~a_1\n"
                          "A~a -> x~a_2\n") n n n n))
 
-@(define (declare-rule-2-defeated-1 n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=orange];\n"
-                         "x~a_2[label=\"x\"];") n n))
-
-@(define (declare-rule-2-defeated-2 n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "x~a_2[label=\"x\", style=\"filled\", fillcolor=orange];") n n))
-
-@(define (declare-rule-2-success n)
-  (format (string-append "x~a_1[label=\"x\", style=\"filled\", fillcolor=yellow];\n"
-                         "x~a_2[label=\"x\", style=\"filled\", fillcolor=yellow];") n n))
+@(define (declare-rule-2 n a b)
+  (string-append (label-x n 1 a) (label-x n 2 b)))
 
 @(define (table-series . lst)
   (define col 3)
+  (define/match (get-col e)
+    [((list content i))
+      `(td [[valign "top"]]
+        (div ,(format "Step ~a" (add1 i))) (div [[align "center"]] ,content))])
+
   (define (get-rows lst)
     (cond
-      [(>= (length lst) col) (cons `(tr ,@(map (lambda (x) `(td ,x)) (take lst col)))
+      [(>= (length lst) col) (cons `(tr ,@(map get-col (take lst col)))
                                    (get-rows (drop lst col)))]
-      [(cons? lst) (list `(tr ,@(map (lambda (x) `(td ,x)) lst)))]
-      [(empty? lst) empty]))
-  (define ret `(table ,@(get-rows lst)))
-  ret)
+      [(empty? lst) empty]
+      [else (list `(tr ,@(map get-col lst)))]))
+  `(table ,@(get-rows (for/list ([e lst] [i (length lst)]) (list e i)))))
 
 @table-series[
   @visualize-parser{
-    A1[color=blue];
+    @label-A[0 'active]
     A1
   }
 
   @visualize-parser{
-    A1[color=blue];
+    @label-A[0 'active]
     @declare-rule-1[1]
     @rule-1[1]
   }
 
   @visualize-parser{
-    A1;
-    @declare-rule-1-active[1]
+    @label-A[0 'normal]
+    @declare-rule-1[1 'match 'active 'normal]
     @rule-1[1]
   }
   @visualize-parser{
-    A1;
-    @declare-rule-1-active[1]
+    @label-A[0 'normal]
+    @declare-rule-1[1 'match 'active 'normal]
     @declare-rule-1[2]
     @rule-1[1]
     @rule-1[2]
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
-    @declare-rule-1-active[2]
+    @declare-rule-1[2 'match 'active 'normal]
     @rule-1[1]
     @rule-1[2]
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
-    @declare-rule-1-active[2]
+    @declare-rule-1[2 'match 'active 'normal]
     @declare-rule-1[3]
     @rule-1[1]
     @rule-1[2]
@@ -212,20 +194,20 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
-    @declare-rule-1-active[3]
+    @declare-rule-1[3 'match 'active 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
-    @declare-rule-1-active[3]
+    @declare-rule-1[3 'match 'active 'normal]
     @declare-rule-1[4]
     @rule-1[1]
     @rule-1[2]
@@ -234,11 +216,11 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
-    @declare-rule-1-active[4]
+    @declare-rule-1[4 'match 'active 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -246,11 +228,11 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
-    @declare-rule-1-active[4]
+    @declare-rule-1[4 'match 'active 'normal]
     @declare-rule-1[5]
     @rule-1[1]
     @rule-1[2]
@@ -260,12 +242,12 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
-    @declare-rule-1-active[5]
+    @declare-rule-1[5 'match 'active 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -274,12 +256,12 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
-    @declare-rule-1-active[5]
+    @declare-rule-1[5 'match 'active 'normal]
     @declare-rule-1[6]
     @rule-1[1]
     @rule-1[2]
@@ -290,13 +272,13 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
     @declare-rule-1[5]
-    @declare-rule-1-active[6]
+    @declare-rule-1[6 'match 'active 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -305,14 +287,14 @@ digraph {
     @rule-1[6]
   }
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
     @declare-rule-1[5]
-    @declare-rule-1-active[6]
-    @declare-rule-1-defeated-1[7]
+    @declare-rule-1[6 'match 'active 'normal]
+    @declare-rule-1[7 'unmatch 'normal 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -322,14 +304,14 @@ digraph {
     @rule-1[7]
   }
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
     @declare-rule-1[5]
-    @declare-rule-1-active[6]
-    @declare-rule-2-defeated-1[7]
+    @declare-rule-1[6 'match 'active 'normal]
+    @declare-rule-2[7 'unmatch 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -340,13 +322,13 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
     @declare-rule-1[5]
-    @declare-rule-1-defeated-2-active[6]
+    @declare-rule-1[6 'match 'unmatch-active 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -356,13 +338,13 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
-    @declare-rule-1-active[5]
-    @declare-rule-1-defeated-2[6]
+    @declare-rule-1[5 'match 'active 'normal]
+    @declare-rule-1[6 'match 'unmatch 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -372,13 +354,13 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
-    @declare-rule-1-active[5]
-    @declare-rule-2-defeated-2[6]
+    @declare-rule-1[5 'match 'active 'normal]
+    @declare-rule-2[6 'match 'unmatch]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -388,12 +370,12 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
     @declare-rule-1[4]
-    @declare-rule-1-defeated-2-active[5]
+    @declare-rule-1[5 'match 'unmatch-active 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -402,12 +384,12 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
-    @declare-rule-1-active[4]
-    @declare-rule-1-defeated-2[5]
+    @declare-rule-1[4 'match 'active 'normal]
+    @declare-rule-1[5 'match 'unmatch 'normal]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -416,12 +398,12 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
     @declare-rule-1[3]
-    @declare-rule-1-active[4]
-    @declare-rule-2-success[5]
+    @declare-rule-1[4 'match 'active 'normal]
+    @declare-rule-2[5 'match 'match]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -430,12 +412,12 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
-    @declare-rule-1-active[3]
-    @declare-rule-1-defeated-3[4]
-    @declare-rule-2-success[5]
+    @declare-rule-1[3 'match 'active 'normal]
+    @declare-rule-1[4 'match 'match 'unmatch]
+    @declare-rule-2[5 'match 'match]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -444,11 +426,11 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
     @declare-rule-1[2]
-    @declare-rule-1-active[3]
-    @declare-rule-2-success[4]
+    @declare-rule-1[3 'match 'active 'normal]
+    @declare-rule-2[4 'match 'match]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -456,11 +438,11 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
+    @label-A[0 'normal]
     @declare-rule-1[1]
-    @declare-rule-1-active[2]
-    @declare-rule-1-success[3]
-    @declare-rule-2-success[4]
+    @declare-rule-1[2 'match 'active 'normal]
+    @declare-rule-1[3 'match 'match 'match]
+    @declare-rule-2[4 'match 'match]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -468,11 +450,11 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
-    @declare-rule-1-active[1]
-    @declare-rule-1-defeated-3[2]
-    @declare-rule-1-success[3]
-    @declare-rule-2-success[4]
+    @label-A[0 'normal]
+    @declare-rule-1[1 'match 'active 'normal]
+    @declare-rule-1[2 'match 'match 'unmatch]
+    @declare-rule-1[3 'match 'match 'match]
+    @declare-rule-2[4 'match 'match]
     @rule-1[1]
     @rule-1[2]
     @rule-1[3]
@@ -480,25 +462,25 @@ digraph {
   }
 
   @visualize-parser{
-    A1;
-    @declare-rule-1-active[1]
-    @declare-rule-2-success[2]
+    @label-A[0 'normal]
+    @declare-rule-1[1 'match 'active 'normal]
+    @declare-rule-2[2 'match 'match]
     @rule-1[1]
     @rule-2[2]
   }
 
   @visualize-parser{
-    A1[color=blue];
-    @declare-rule-1-success[1]
-    @declare-rule-2-success[2]
+    @label-A[0 'active]
+    @declare-rule-1[1 'match 'match 'match]
+    @declare-rule-2[2 'match 'match]
     @rule-1[1]
     @rule-2[2]
   }
 
   @visualize-parser{
-    A1[color=blue, style="filled", fillcolor=yellow];
-    @declare-rule-1-success[1]
-    @declare-rule-2-success[2]
+    @label-A[0 'match-active]
+    @declare-rule-1[1 'match 'match 'match]
+    @declare-rule-2[2 'match 'match]
     @rule-1[1]
     @rule-2[2]
   }
