@@ -89,10 +89,11 @@ In particular, the grammar cannot derive @code{xxxxxx} (6 @code{x}). Here, I wil
     function draw(uniqueId, graphDef) {
       const newGraphDef = `
 digraph {
+  nodesep=0.07;
+  ranksep="0.3";
   ${graphDef}
 }`
-      const image = Viz(newGraphDef, {format: "png-image-element"});
-      document.getElementById(uniqueId).appendChild(image);
+      document.getElementById(uniqueId).innerHTML += Viz(newGraphDef, {format: "svg"});
     }
   }|
 }
@@ -100,21 +101,21 @@ digraph {
 @(define (label-x n sub mode)
   (format
     (match mode
-      ['normal "x~a_~a[label=\"x\", style=\"bold\"];\n"]
-      ['match "x~a_~a[label=\"x\", style=\"filled,bold\", fillcolor=yellow];\n"]
-      ['unmatch "x~a_~a[label=\"x\", style=\"filled,bold\", fillcolor=orange];\n"])
-    n sub))
+      ['normal "x~a_~a[label=\"x\", style=\"bold\"~a];\n"]
+      ['match "x~a_~a[label=\"x\", style=\"filled,bold\", fillcolor=yellow~a];\n"]
+      ['unmatch "x~a_~a[label=\"x\", style=\"filled,bold\", fillcolor=orange~a];\n"])
+    n sub ", width=\"0.5\""))
 
 @(define (label-A n mode)
   (format
     (match mode
-      ['normal "A~a[style=\"bold\"];\n"]
-      ['active "A~a[color=blue, style=\"bold\"];\n"]
-      ['unmatch "A~a[style=\"filled,bold\", fillcolor=orange];\n"]
-      ['unmatch-active "A~a[color=blue, style=\"filled,bold\", fillcolor=orange];\n"]
-      ['match "A~a[style=\"filled,bold\", fillcolor=yellow];\n"]
-      ['match-active "A~a[color=blue, style=\"filled,bold\", fillcolor=yellow];\n"])
-    (add1 n)))
+      ['normal "A~a[style=\"bold\"~a];\n"]
+      ['active "A~a[color=blue, style=\"bold\"~a];\n"]
+      ['unmatch "A~a[style=\"filled,bold\", fillcolor=orange~a];\n"]
+      ['unmatch-active "A~a[color=blue, style=\"filled,bold\", fillcolor=orange~a];\n"]
+      ['match "A~a[style=\"filled,bold\", fillcolor=yellow~a];\n"]
+      ['match-active "A~a[color=blue, style=\"filled,bold\", fillcolor=yellow~a];\n"])
+    (add1 n) ", width=\"0.5\""))
 
 @(define (rule-1 n)
   (format (string-append "A~a -> x~a_1\n"
@@ -485,7 +486,7 @@ digraph {
   }
 ]
 
-However, there are 6 @code{x} in the input string. This only matches 4, so it didn't successfully parse.
+However, there are 6 @code{x} in the input string. This only matches 4, so it didn't completely successfully parse.
 
 The problem, in particular, is that at step 24, @code{A3} could have changed to rule 2 which would then match the whole string. However, it did not because rule 1 is successful, so we backtrack to @code{A2}, completely ignoring the possibility.
 
