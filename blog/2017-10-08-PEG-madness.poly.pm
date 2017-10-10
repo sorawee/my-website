@@ -45,7 +45,7 @@ On the other hand, @code{xx} can't be derived by
   B <- "xx" / "x"
 }|
 
-Some people really think that this is bad, which could be true, but it's still not too complicated. I can still understand easily why it would not derive some strings.
+Some people really think that this is bad, which could be true. But this is still not too complicated for me. I can still understand easily why it would not derive some strings.
 
 However, this prioritized choice operator has a lot of consequences. It could cause some unexpected parsing error message as follows:
 
@@ -84,7 +84,6 @@ In particular, the grammar cannot derive @code{xxxxxx} (6 @code{x}). Here, I wil
       (script ,(format "draw(\"~a\", `~a`)" unique-id (apply string-append graph-def)))))
 
 @phantom{
-  @script[#:src "https://code.jquery.com/jquery-3.2.1.min.js"]
   @script[#:src "/js/viz.js"]
   @script|{
     function draw(uniqueId, graphDef) {
@@ -136,7 +135,7 @@ digraph {
   (string-append (label-x n 1 a) (label-x n 2 b)))
 
 @(define (table-series . lst)
-  (define col 3)
+  (define col 4)
   (define/match (get-col e)
     [((list content i))
       `(td [[valign "top"]]
@@ -488,7 +487,7 @@ digraph {
 
 However, there are 6 @code{x} in the input string. This only matches 4, so it didn't successfully parse.
 
-The problem, in particular, is that at step 24, @code{A3} should be able to change to rule 2 which would then match the whole string. However, it did not because rule 1 is successful, so we backtrack to @code{A2}, completely ignore the possibility.
+The problem, in particular, is that at step 24, @code{A3} could have changed to rule 2 which would then match the whole string. However, it did not because rule 1 is successful, so we backtrack to @code{A2}, completely ignoring the possibility.
 
 Note, however, that it's still possible to generate @${\set{x^{2n}: n \ge 1}}.
 
