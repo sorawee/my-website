@@ -217,7 +217,7 @@ rm -rf dictionary *.tar.bz2
 # *recursively* in goldendict
 }|
 
-For Spotify, after the installation, we need to set the scale to make it display properly with HiDPI: change @code{/usr/share/applications/spotify.desktop} to use @code{Exec=spotify --force-device-scale-factor=2 %U}.
+For Spotify, after the installation, we need to set the scale to make it display properly with HiDPI: copy @code{/usr/share/applications/spotify.desktop} to @code{~/.local/share/applications/}, then edit the @code{Exec} line to be @code{Exec=spotify --force-device-scale-factor=2 %U}.
 
 For Skype, I find that the version in the repository uses Qt 4, which sucks (especially on HiDPI). It's better to get the beta version which is Qt-5-based from the @link["https://web.skype.com/en/"]{webapp}
 
@@ -419,7 +419,7 @@ When @code{monitor-sensor} is working, install @code{@link["https://github.com/a
   nano /opt/thinkpad-yoga-scripts/rotate/thinkpad-rotate.py
 }|
 
-Set both @code{rotate_pens} and @code{disable_touchpads} to @code{True}. Then:
+Set @code{disable_touchpads} to @code{True}. For @code{rotate_pens}, it depends on the desktop environment that you are using. For example, I need to set this to @code{True} for Unity, but @code{False} for GNOME (Ubuntu 17.10). Then:
 
 @highlight['bash]|{
   cp /opt/thinkpad-yoga-scripts/systemd/yoga-rotate@.service /lib/systemd/system/

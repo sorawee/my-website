@@ -19,7 +19,7 @@ Weak Induction states: for any proposition @${P}, @${(P(0) \land \forall x. (P(x
 
 This is incorrect because we have not proved the base case that @${0 > 1} which, indeed, is unprovable.
 
-However, in strong induction, we can omit the base case! The traditional strong induction is: for any proposition @${P}, @${(P(0) \land \forall x. ((\forall y < x. P(y)) \-> P(x))) \-> \forall x. P(x)}. But as stated above, in fact just only @${\forall x. ((\forall y < x. P(y)) \-> P(x)) \-> \forall x. P(x)} is enough.
+However, in strong induction, we can omit the base case! One variant of strong induction with a base case is: for any proposition @${P}, @${(P(0) \land \forall x. ((\forall y < x. P(y)) \-> P(x))) \-> \forall x. P(x)}. But as I stated above, only @${\forall x. ((\forall y < x. P(y)) \-> P(x)) \-> \forall x. P(x)} is in fact enough.
 
 As an example, if you try to use strong induction to prove that @${\forall x. x > x + 1}, we would have:
 
@@ -38,6 +38,9 @@ To be formal, we will derive @${(P(0) \land \forall x. (\forall y < x. P(y) \-> 
 }
 
 @subsection{Equivalence of Weak Induction and Strong Induction}
+
+
+
 
 @highlight['coq]|{
 Require Import Omega.
