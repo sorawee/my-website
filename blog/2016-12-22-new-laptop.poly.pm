@@ -11,6 +11,38 @@ Following are my settings. I write these particularly for myself in the future s
 
 @see-more
 
+First of all, I have a directory named @code{git} in my home directory which hosts all git projects that I cloned.
+
+@highlight['sh]|{
+mkdir ~/git
+cd git
+git clone git@github.com:sorawee/dotfiles.git
+git clone git@github.com:brownplt/pyret-lang.git
+
+# For spacemacs
+git clone --depth 1 --branch release https://github.com/adobe-fonts/source-code-pro.git
+}|
+
+I use Spacemacs as my main editor. Here's how I set it up:
+
+@highlight['sh]|{
+sudo apt install emacs25 # or emacs26 or whatever you want
+git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+
+mkdir ~/emacs
+mkdir ~/.fonts
+wget http://www.neilvandyke.org/scribble-emacs/scribble.el -O ~/emacs/scribble.el
+cd
+ln -s git/dotfiles/.spacemacs .
+cp ~/git/source-code-pro/OTF/* ~/.fonts
+sudo fc-cache
+cp /usr/share/applications/emacs25.desktop ~/.local/share/applications/
+}|
+
+Then edit @code{~/.local/share/applications/emacs25.desktop}. Change the @code{Exec} line to @code{Exec=/usr/bin/emacsclient -c -a "" -F "((fullscreen . maximized))" %F} and change the @code{Name} to whatever short name you like. Now you should be able to load emacs GUI properly.
+
+Now that we have a decent editor, we can set the rest up.
+
 @highlight['sh]|{
 ## run `sudo apt update` as appropriate
 
@@ -70,8 +102,6 @@ I really like the default prompt of @code{zprezto} which is @code{sorin}, but I 
 Here's my additional settings for @code{.zshrc}:
 
 @filebox-highlight["~/.zshrc" 'bash]|{
-# use terminal emacs as default
-alias emacs='emacs -nw'
 # use it like this: run_long_command; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
 "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
@@ -90,8 +120,6 @@ xdg-open $@ &> /dev/null
 There are a bunch of other programs I want to install
 
 @highlight['sh]|{
-sudo apt install emacs24 # or emacs25, 26, whatever you want
-
 sudo add-apt-repository ppa:webupd8team/atom
 sudo apt install atom
 
@@ -127,9 +155,6 @@ rm master.zip
 sudo apt install texlive-full texstudio
 
 sudo apt install caffeine
-
-sudo add-apt-repository ppa:jconti/recent-notifications
-sudo apt install indicator-notifications
 
 sudo apt install rustc
 
@@ -183,13 +208,9 @@ sudo apt install xournal
 
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt install -y nodejs
-}|
 
-@link["github.com/phw/peek"]{Peek} is a screen recorder program which produces GIF as the output.
-
-@highlight['bash]|{
-  sudo add-apt-repository ppa:peek-developers/stable
-  sudo apt install peek
+sudo add-apt-repository ppa:peek-developers/stable
+sudo apt install peek
 }|
 
 As a non-English speaker, I use dictionaries a lot. I also want it to be offline. The best program I could fine (which is also the same one I used 4 years ago) is @code{goldendict}. Here's the setup:
@@ -288,6 +309,16 @@ fi
 }|
 
 Then, in @menu{Keyboard > Shortcuts}, create a custom command which invokes @code{~/bin/switch-reading-mode} when pressing @kbds{CapsLock}. Indeed, when entering the reading mode, the Capslock would be on, but in the reading mode, you don't type, so it's fine! @emj{:)} Note that the reason I choose Capslock is that it has the physical light indicator on the keyboard, meaning that I will know whether I am in the reading mode or not without having to try pressing @kbds{Home} or other keys.
+
+I also want to use @kbd{AltR Left} and @kbd{AltR Right} for @kbd{Home} and @kbd{End}. Similarly, I want to use @kbd{AltR Up} and @kbds{AltR Down} for @kbds{PageUp} and @kbds{PageDn}. This can be done by assigning @kbds{AltR} a mode switch and make arrow keys mode-switch-sensitive. That is:
+
+@filebox-highlight["~/.xsession" 'bash]|{
+xmodmap -e "keycode 108 = Mode_switch"
+xmodmap -e "keycode 113 = Left NoSymbol Home"
+xmodmap -e "keycode 114 = Right NoSymbol End"
+xmodmap -e "keycode 111 = Up NoSymbol Prior"
+xmodmap -e "keycode 116 = Down NoSymbol Next"
+}|
 
 Life of Thinkpad in Ubuntu also kinda sucks. Fingerprint reader @link["https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/Special_Interest_Linux/thread-id/7920/page/1"]{doesn't work}. @strike{Neither is Tablet mode auto-rotation. In fact, I couldn't even connect the accelerometer although I'm sure there is one because it works in Windows. So I need to manually tell Ubuntu to rotate screen, which is kinda awkward. I make it easier by calling this script (which also does other things like disabling trackpad, etc.):}
 
