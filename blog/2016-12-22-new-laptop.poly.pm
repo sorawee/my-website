@@ -11,9 +11,10 @@ Following are my settings. I write these particularly for myself in the future s
 
 @see-more
 
-First of all, I have a directory named @code{git} in my home directory which hosts all git projects that I cloned.
+First of all, install @code{git} and set up the directory that contains all git projects.
 
 @highlight['sh]|{
+sudo apt install git
 mkdir ~/git
 cd git
 git clone git@github.com:sorawee/dotfiles.git
@@ -51,84 +52,29 @@ sudo add-apt-repository ppa:webupd8team/terminix
 sudo apt install tilix
 gsettings set org.gnome.desktop.default-applications.terminal exec 'tilix'
 
-# get zsh for history substring search and other cool stuff
+# get zsh
 sudo apt install zsh
-zsh
+zsh # don't generate .zshrc
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 setopt EXTENDED_GLOB
-rm -f .zshrc
-for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
+for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^(README.md|zshrc|zprestorc)(.N); do
+  ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
+done
+for rcfile in "${ZDOTDIR:-$HOME}"/git/dotfiles/dotfiles/*; do
   ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 chsh -s /bin/zsh
 }|
 
-The configuration of @code{.zpreztorc} is straightforward. The only major thing I did is to add the history substring search plugin. Note that @code{'prompt'} must be the last one.
+The directory @code{bin} contains all local executable files that I would like to install and can be linked from the dotfiles directory as well.
 
-@filebox-highlight["~/.zpreztorc" 'bash]|{
-...
-'completion' \
-'history-substring-search' \
-'prompt'
-}|
-
-I really like the default prompt of @code{zprezto} which is @code{sorin}, but I want normal path display and want to have current time shown as the right prompt. I also don't like crazy git status. So I changed:
-
-@filebox-highlight["~/.zprezto/modules/prompt/functions/prompt_sorin_setup" 'diff]|{
-@@ -39,7 +39,8 @@ function prompt_sorin_pwd {
-     _prompt_sorin_pwd="$MATCH"
-     unset MATCH
-   else
--    _prompt_sorin_pwd="${${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}//\%/%%}/${${pwd:t}//\%/%%}"
-+    #_prompt_sorin_pwd="${${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}//\%/%%}/${${pwd:t}//\%/%%}"
-+    _prompt_sorin_pwd="${pwd}"
-   fi
- }
-
-@@ -80,7 +81,8 @@ function prompt_sorin_precmd {
-   prompt_sorin_pwd
-
-   # Define prompts.
--  RPROMPT='${editor_info[overwrite]}%(?:: %F{1}⏎%f)${VIM:+" %B%F{6}V%f%b"}'
-+  RPROMPT='[%D{%L:%M:%S %p}]'
-+  #RPROMPT='${editor_info[overwrite]}%(?:: %F{1}⏎%f)${VIM:+" %B%F{6}V%f%b"}'
-
-   # Kill the old process of slow commands if it is still running.
-   if (( _prompt_sorin_precmd_async_pid > 0 )); then
-}|
-
-@code{agnoster}, @code{pure}, and @code{powerline} also look interesting, but I like single line more than double line, so right now I will stick with @code{sorin}.
-
-Here's my additional settings for @code{.zshrc}:
-
-@filebox-highlight["~/.zshrc" 'bash]|{
-# use it like this: run_long_command; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
-"$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-# reset the network
-alias rnet='sudo systemctl restart NetworkManager.service'
-}|
-
-I like OS X's @code{open} a lot. Here we have @code{xdg-open}, but it vomits a lot of text while running in background. Thus, I created:
-
-@filebox-highlight["~/bin/open" 'bash]|{
-#!/usr/bin/zsh
-
-xdg-open $@ &> /dev/null
+@highlight['sh]|{
+ln -s git/dotfiles/bin bin
 }|
 
 There are a bunch of other programs I want to install
 
 @highlight['sh]|{
-sudo add-apt-repository ppa:webupd8team/atom
-sudo apt install atom
-
-sudo add-apt-repository ppa:webupd8team/mtpaint
-sudo apt install mtpaint
-
-sudo apt-add-repository ppa:achadwick/mypaint-testing
-sudo apt install mypaint mypaint-data-extras
-
 sudo apt install clipit
 
 sudo apt install liferea
@@ -194,9 +140,6 @@ sudo apt install psensor
 
 sudo apt install redshift redshift-gtk
 
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt install oracle-java8-installer
-
 sudo add-apt-repository ppa:plt/racket
 sudo apt install racket
 raco pkg install pollen
@@ -240,9 +183,7 @@ rm -rf dictionary *.tar.bz2
 
 For Spotify, after the installation, we need to set the scale to make it display properly with HiDPI: copy @code{/usr/share/applications/spotify.desktop} to @code{~/.local/share/applications/}, then edit the @code{Exec} line to be @code{Exec=spotify --force-device-scale-factor=2 %U}.
 
-For Skype, I find that the version in the repository uses Qt 4, which sucks (especially on HiDPI). It's better to get the beta version which is Qt-5-based from the @link["https://web.skype.com/en/"]{webapp}
-
-Slack works very well without any additional configuration.
+Slack and Skype work very well without any additional configuration.
 
 Now, I happen to often run stuff that will hang the computer, which would require me to hard-reset it if I don't have any other plan. Although I'm using SSD now which means there is little risk of damaging the disk when hard-resetting, I still don't want to do it. Thus, I will enable two keyboard shortcuts for the soft reset:
 
@@ -277,7 +218,6 @@ Ideally, I would want @kbds{Fn Left} and @kbds{Fn Right} back, but after a lot o
 -    key <PGDN> {	[  Next			]	};
 +    key  <END> {	[  Next			]	};
 +    key <PGDN> {	[  End			]	};
-
      key   <UP> {	[  Up			]	};
      key <LEFT> {	[  Left			]	};
 }|
