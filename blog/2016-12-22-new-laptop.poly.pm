@@ -11,39 +11,6 @@ Following are my settings. I write these particularly for myself in the future s
 
 @see-more
 
-First of all, install @code{git} and set up the directory that contains all git projects.
-
-@highlight['sh]|{
-sudo apt install git
-mkdir ~/git
-cd git
-git clone git@github.com:sorawee/dotfiles.git
-git clone git@github.com:brownplt/pyret-lang.git
-
-# For spacemacs
-git clone --depth 1 --branch release https://github.com/adobe-fonts/source-code-pro.git
-}|
-
-I use Spacemacs as my main editor. Here's how I set it up:
-
-@highlight['sh]|{
-sudo apt install emacs25 # or emacs26 or whatever you want
-git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
-
-mkdir ~/emacs
-mkdir ~/.fonts
-wget http://www.neilvandyke.org/scribble-emacs/scribble.el -O ~/emacs/scribble.el
-cd
-ln -s git/dotfiles/.spacemacs .
-cp ~/git/source-code-pro/OTF/* ~/.fonts
-sudo fc-cache
-cp /usr/share/applications/emacs25.desktop ~/.local/share/applications/
-}|
-
-Then edit @code{~/.local/share/applications/emacs25.desktop}. Change the @code{Exec} line to @code{Exec=/usr/bin/emacsclient -c -a "" -F "((fullscreen . maximized))" %F} and change the @code{Name} to whatever short name you like. Now you should be able to load emacs GUI properly.
-
-Now that we have a decent editor, we can set the rest up.
-
 @highlight['sh]|{
 ## run `sudo apt update` as appropriate
 
@@ -52,29 +19,88 @@ sudo add-apt-repository ppa:webupd8team/terminix
 sudo apt install tilix
 gsettings set org.gnome.desktop.default-applications.terminal exec 'tilix'
 
-# get zsh
+# get zsh for history substring search and other cool stuff
 sudo apt install zsh
-zsh # don't generate .zshrc
+zsh
 git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 setopt EXTENDED_GLOB
-for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^(README.md|zshrc|zprestorc)(.N); do
-  ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
-done
-for rcfile in "${ZDOTDIR:-$HOME}"/git/dotfiles/dotfiles/*; do
+rm -f .zshrc
+for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
   ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"
 done
 chsh -s /bin/zsh
 }|
 
-The directory @code{bin} contains all local executable files that I would like to install and can be linked from the dotfiles directory as well.
+The configuration of @code{.zpreztorc} is straightforward. The only major thing I did is to add the history substring search plugin. Note that @code{'prompt'} must be the last one.
 
-@highlight['sh]|{
-ln -s git/dotfiles/bin bin
+@filebox-highlight["~/.zpreztorc" 'bash]|{
+...
+'completion' \
+'history-substring-search' \
+'prompt'
+}|
+
+I really like the default prompt of @code{zprezto} which is @code{sorin}, but I want normal path display and want to have current time shown as the right prompt. I also don't like crazy git status. So I changed:
+
+@filebox-highlight["~/.zprezto/modules/prompt/functions/prompt_sorin_setup" 'diff]|{
+@@ -39,7 +39,8 @@ function prompt_sorin_pwd {
+     _prompt_sorin_pwd="$MATCH"
+     unset MATCH
+   else
+-    _prompt_sorin_pwd="${${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}//\%/%%}/${${pwd:t}//\%/%%}"
++    #_prompt_sorin_pwd="${${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}//\%/%%}/${${pwd:t}//\%/%%}"
++    _prompt_sorin_pwd="${pwd}"
+   fi
+ }
+
+@@ -80,7 +81,8 @@ function prompt_sorin_precmd {
+   prompt_sorin_pwd
+
+   # Define prompts.
+-  RPROMPT='${editor_info[overwrite]}%(?:: %F{1}⏎%f)${VIM:+" %B%F{6}V%f%b"}'
++  RPROMPT='[%D{%L:%M:%S %p}]'
++  #RPROMPT='${editor_info[overwrite]}%(?:: %F{1}⏎%f)${VIM:+" %B%F{6}V%f%b"}'
+
+   # Kill the old process of slow commands if it is still running.
+   if (( _prompt_sorin_precmd_async_pid > 0 )); then
+}|
+
+@code{agnoster}, @code{pure}, and @code{powerline} also look interesting, but I like single line more than double line, so right now I will stick with @code{sorin}.
+
+Here's my additional settings for @code{.zshrc}:
+
+@filebox-highlight["~/.zshrc" 'bash]|{
+# use terminal emacs as default
+alias emacs='emacs -nw'
+# use it like this: run_long_command; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" \
+"$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+# reset the network
+alias rnet='sudo systemctl restart NetworkManager.service'
+}|
+
+I like OS X's @code{open} a lot. Here we have @code{xdg-open}, but it vomits a lot of text while running in background. Thus, I created:
+
+@filebox-highlight["~/bin/open" 'bash]|{
+#!/usr/bin/zsh
+
+xdg-open $@ &> /dev/null
 }|
 
 There are a bunch of other programs I want to install
 
 @highlight['sh]|{
+sudo apt install emacs24 # or emacs25, 26, whatever you want
+
+sudo add-apt-repository ppa:webupd8team/atom
+sudo apt install atom
+
+sudo add-apt-repository ppa:webupd8team/mtpaint
+sudo apt install mtpaint
+
+sudo apt-add-repository ppa:achadwick/mypaint-testing
+sudo apt install mypaint mypaint-data-extras
+
 sudo apt install clipit
 
 sudo apt install liferea
@@ -101,6 +127,9 @@ rm master.zip
 sudo apt install texlive-full texstudio
 
 sudo apt install caffeine
+
+sudo add-apt-repository ppa:jconti/recent-notifications
+sudo apt install indicator-notifications
 
 sudo apt install rustc
 
@@ -140,6 +169,9 @@ sudo apt install psensor
 
 sudo apt install redshift redshift-gtk
 
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt install oracle-java8-installer
+
 sudo add-apt-repository ppa:plt/racket
 sudo apt install racket
 raco pkg install pollen
@@ -151,9 +183,13 @@ sudo apt install xournal
 
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt install -y nodejs
+}|
 
-sudo add-apt-repository ppa:peek-developers/stable
-sudo apt install peek
+@link["github.com/phw/peek"]{Peek} is a screen recorder program which produces GIF as the output.
+
+@highlight['bash]|{
+  sudo add-apt-repository ppa:peek-developers/stable
+  sudo apt install peek
 }|
 
 As a non-English speaker, I use dictionaries a lot. I also want it to be offline. The best program I could fine (which is also the same one I used 4 years ago) is @code{goldendict}. Here's the setup:
@@ -183,7 +219,9 @@ rm -rf dictionary *.tar.bz2
 
 For Spotify, after the installation, we need to set the scale to make it display properly with HiDPI: copy @code{/usr/share/applications/spotify.desktop} to @code{~/.local/share/applications/}, then edit the @code{Exec} line to be @code{Exec=spotify --force-device-scale-factor=2 %U}.
 
-Slack and Skype work very well without any additional configuration.
+For Skype, I find that the version in the repository uses Qt 4, which sucks (especially on HiDPI). It's better to get the beta version which is Qt-5-based from the @link["https://web.skype.com/en/"]{webapp}
+
+Slack works very well without any additional configuration.
 
 Now, I happen to often run stuff that will hang the computer, which would require me to hard-reset it if I don't have any other plan. Although I'm using SSD now which means there is little risk of damaging the disk when hard-resetting, I still don't want to do it. Thus, I will enable two keyboard shortcuts for the soft reset:
 
@@ -218,6 +256,7 @@ Ideally, I would want @kbds{Fn Left} and @kbds{Fn Right} back, but after a lot o
 -    key <PGDN> {	[  Next			]	};
 +    key  <END> {	[  Next			]	};
 +    key <PGDN> {	[  End			]	};
+
      key   <UP> {	[  Up			]	};
      key <LEFT> {	[  Left			]	};
 }|
@@ -249,16 +288,6 @@ fi
 }|
 
 Then, in @menu{Keyboard > Shortcuts}, create a custom command which invokes @code{~/bin/switch-reading-mode} when pressing @kbds{CapsLock}. Indeed, when entering the reading mode, the Capslock would be on, but in the reading mode, you don't type, so it's fine! @emj{:)} Note that the reason I choose Capslock is that it has the physical light indicator on the keyboard, meaning that I will know whether I am in the reading mode or not without having to try pressing @kbds{Home} or other keys.
-
-I also want to use @kbd{AltR Left} and @kbd{AltR Right} for @kbd{Home} and @kbd{End}. Similarly, I want to use @kbd{AltR Up} and @kbds{AltR Down} for @kbds{PageUp} and @kbds{PageDn}. This can be done by assigning @kbds{AltR} a mode switch and make arrow keys mode-switch-sensitive. That is:
-
-@filebox-highlight["~/.xsession" 'bash]|{
-xmodmap -e "keycode 108 = Mode_switch"
-xmodmap -e "keycode 113 = Left NoSymbol Home"
-xmodmap -e "keycode 114 = Right NoSymbol End"
-xmodmap -e "keycode 111 = Up NoSymbol Prior"
-xmodmap -e "keycode 116 = Down NoSymbol Next"
-}|
 
 Life of Thinkpad in Ubuntu also kinda sucks. Fingerprint reader @link["https://forums.lenovo.com/t5/forums/v3_1/forumtopicpage/board-id/Special_Interest_Linux/thread-id/7920/page/1"]{doesn't work}. @strike{Neither is Tablet mode auto-rotation. In fact, I couldn't even connect the accelerometer although I'm sure there is one because it works in Windows. So I need to manually tell Ubuntu to rotate screen, which is kinda awkward. I make it easier by calling this script (which also does other things like disabling trackpad, etc.):}
 

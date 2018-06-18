@@ -8,12 +8,12 @@ index.html
 
 @(cons 'blog
        (map (λ (x) (string->symbol (string-append "blog/" (string-replace x ".poly.pm" ".html"))))
-            (filter (λ (path) (and (not (string-prefix? path "_")) (string-suffix? path ".poly.pm")))
+            (filter (λ (path) (and (not (string-prefix? path "_")) (not (string-prefix? path ".")) (string-suffix? path ".poly.pm")))
                     (sort (map path->string (directory-list "blog")) string>?))))
 
 @(cons 'books
        (map (λ (x) (string->symbol (string-append "books/" (string-replace x ".poly.pm" ".html"))))
-            (filter (λ (path) (and (not (string-prefix? path "_")) (string-suffix? path ".poly.pm")))
+            (filter (λ (path) (and (not (string-prefix? path "_")) (not (string-prefix? path ".")) (string-suffix? path ".poly.pm")))
                     (sort (map path->string (directory-list "books")) string>?))))
 
 

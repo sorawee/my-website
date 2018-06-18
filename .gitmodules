@@ -1,0 +1,3 @@
+[submodule "harkness"]
+	path = harkness
+	url = git@github.com:sorawee/harkness.js.git
