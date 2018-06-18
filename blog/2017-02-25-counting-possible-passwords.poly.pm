@@ -3,7 +3,7 @@
 @(define-meta title "Counting Possible Passwords")
 @(define-meta tags (dynamic-programming programming))
 
-Jack showed this @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal/login/help/listPasswordRules.htm"]{the rules for password naming} in a website to me. Here's an excerpt:
+Jack showed @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal/login/help/listPasswordRules.htm"]{"the rules for password naming"} in a website to me. Here's an excerpt:
 
 @blockquote{
   @numberlist[
@@ -31,7 +31,7 @@ Jack showed this @link["http://portal.cs.oag.state.tx.us/OAGStaticContent/portal
   @numberlist[
     @item{phuny#2s}
     @item{fish#1ng}
-    @item{t0pph@"@"ts}
+    @item{t0pph@"@"ts@numbered-note{Ahem... To quote from somewhere... No "sets" are allowed.}}
     @item{run$4you}
     @item{ba#3ries}
   ]
@@ -41,7 +41,7 @@ I'm terrified.
 
 @see-more
 
-This reminds me of an xkcd comic @link["https://xkcd.com/936/"]{"Password Strength"}. As the comic states, through 20 years of effort, we've successfully trained everyone to use passwords that are hard for humans to remember, but easy for computers to guess. For this website, it's even worse because the website itself forces users to abide these non-sense rules.
+This reminds me of an xkcd comic @link["https://xkcd.com/936/"]{"Password Strength"}. As the comic states, through 20 years of effort, we've successfully trained everyone to use passwords that are hard for humans to remember, but easy for computers to guess. For this website, it's even worse because the website itself forces users to abide these nonsensical rules.
 
 What we are more interested, however, is to count how many possible passwords there are! We will consider only rule 1 to 5, as the rest is about specific names or previous passwords which would be hard to define mathematically.
 
@@ -61,10 +61,14 @@ First, write a naive program to count the answer:
 
       def generate(n):
           if n == 0:
-              # print(''.join(string[1:]))
-              return (any(c in string for c in symbol_chars) and
-                      any(c in string for c in digit_chars) and
-                      any(c in string for c in letter_chars))
+              passed = (any(c in string for c in symbol_chars) and
+                        any(c in string for c in digit_chars) and
+                        any(c in string for c in letter_chars))
+              if passed:
+                  # uncomment next line to print all passwords
+                  # print(''.join(string[1:]))
+                  pass
+              return passed
           total = 0
           for c in all_chars:
               if (n == 1 or n == length) and c in symbol_chars: continue
@@ -74,13 +78,19 @@ First, write a naive program to count the answer:
               string.pop()
           return total
       return generate(length)
+}|
 
-    print(count_naive(2, 3, 4, 5)) #=> 11472
+And then we can run:
+
+@highlight['bash]|{
+  $ python3 -i count.py
+  >>> count_naive(2, 3, 4, 5) # 2 symbols, 3 numbers, 4 letters, length 5
+  11472
 }|
 
 Pretty much, this program goes over the entire possible strings@numbered-note{All @code{continue} statements would do some pruning, but that won't help much} and chooses only valid ones. Now, we can compute the answer to the original question. It's just @code{count_naive(3, 10, 52, 8)}, as the number of symbols is 3 (#, $, and @"@"); the number of digits, 10 (0-9); number of letters, 52 (a-z, A-Z), right?
 
-The answer is yes, but as the program goes over the entire possible strings, it would take a really long time to compute the answer. In particular, the algorithm's runtime is @${O(s + d + l)^n} where @${s} is number of symbols, @${d} is number of digits, @${l} is number of letters, and @${n} is the length. With this, we can approximate the real runtime. The number of all possible strings is @${(3 + 10 + 52)^8 = 318644812890625}. Assuming that our computer can execute 1 billion instructions per second, it would take @${(3 + 10 + 52)^8 (\frac{1}{1000000000})(\frac{1}{60})(\frac{1}{60})(\frac{1}{24}) \approx 3.68} days to count them all. I don't want to wait that long!
+The answer is yes, but as the program goes over the entire possible strings, it would take a really long time to compute an answer. In particular, the algorithm's runtime is @${O(s + d + l)^n} where @${s} is number of symbols, @${d} is number of digits, @${l} is number of letters, and @${n} is the length. With this, we can approximate the real runtime. The number of all possible strings is @${(3 + 10 + 52)^8 = 318644812890625}. Assuming that our computer can execute 1 billion instructions per second, it would take @${(3 + 10 + 52)^8 (\frac{1}{1000000000})(\frac{1}{60})(\frac{1}{60})(\frac{1}{24}) \approx 3.68} days to count them all. I don't want to wait that long!
 
 To reduce the running time, notice that all numbers/letters/symbols look the same. Instead of iterating over @${(3 + 10 + 52)^8} states, we can compact these states, iterating over only @${(1 + 1 + 1)^8 = 6561} states!
 
@@ -120,6 +130,8 @@ Computing the answer is now feasible (only one second!).
 
 @highlight['bash]|{
   $ python3 -i count.py
+  >>> count(2, 3, 4, 5)
+  11472 # great! this matches our previous implementation
   >>> count(3, 10, 52, 8)
   46082343914880
 }|
