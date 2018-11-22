@@ -1,0 +1,417 @@
+$font-size-base: 1.1rem;
+$tooltip-max-width: 300px;
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
+/* Section: Default */
+
+code {
+    color: black;
+}
+
+/* When highlighted code blocks are too wide, they wrap. Resulting in the */
+/* line numbers column's rows not lining up with the code rows. Prevent */
+/* wrapping. */
+pre {
+    white-space: pre;
+    width: inherit;
+}
+
+
+article img {
+    /* Make sure that images within blog articles never take more width
+     than the article width; `height: auto` ensures the height is also
+     resized proportionally.
+
+     This is useful given that Markdown itself gives you little
+     control over image resizing, and in particular no way to achieve
+     this "best fit" behavior.
+   */
+    max-width: 100%;
+    height: auto;
+}
+
+/* End Section */
+
+/* Section: tag */
+
+a:hover {
+    background: #f0f0ff;
+    text-decoration: none;
+}
+
+main {
+    font-family: "Fira Sans";
+    margin-top: 2ex;
+}
+
+label {
+    cursor: pointer;
+}
+
+h2 {
+    font-size: 150%;
+}
+
+/* from https://developer.mozilla.org/en-US/docs/Tools/Page_Inspector/Keyboard_shortcuts */
+kbd {
+    color: black;
+    background-color: #f4f7f8;
+    border-radius: 2px;
+    border: 1px solid #b4b4b4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.2), 0 2px 0 0 rgba(255,255,255,.7) inset;
+    font-family: Consolas,"Liberation Mono",Courier,monospace;
+    font-size: .75em;
+    font-weight: 700;
+    padding: 3px;
+    white-space: nowrap;
+}
+
+/* From GitHub */
+code {
+    padding: 2px 4px;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    color: black;
+    background-color: #f3f6fa;
+    border-radius: 0.3rem;
+    white-space: pre;
+}
+
+footer {
+    margin-bottom: 6ex;
+}
+
+/* End Section */
+
+
+/* Section: Bootstrap hacks */
+
+.tooltip-inner {
+    overflow-wrap: normal;
+}
+
+/* End Section */
+
+
+#content-title--index-html h2 span {
+    font-size: 70%;
+    padding-left: 1rem;
+}
+
+.content-type--index {
+    @extend .justify-content-center
+}
+
+.content-type--index > div {
+    @extend .col-md-10
+}
+
+.content-type--post > div {
+    @extend .col-md-9
+}
+
+.pubdate, .update {
+    font-style: italic;
+}
+
+.update {
+    margin-top: -1ex;
+}
+
+/* to override Scribble's styling */
+.container h2 {
+    margin-top: 2ex;
+}
+
+.site-info {
+    h1 {
+        font-size: 150%;
+        a {
+            color: black;
+        }
+    }
+
+    p {
+        margin: 0;
+    }
+
+    font-size: 90%;
+}
+
+article.post-summary {
+    padding-bottom: 2ex;
+}
+
+
+.highlight {
+    margin-bottom: 2ex;
+    overflow-x: auto;
+}
+
+.highlight a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.date {
+    font-style: italic;
+}
+
+.publication-list {
+    @extend .list-unstyled;
+}
+
+.btn-rss {
+    @include button-variant($orange, $orange);
+    color: white;
+}
+
+.dblp-icon {
+    width: 1.5rem;
+}
+
+
+/* Section: margin-note */
+
+$without-margin-notes: xs sm;
+$with-margin-notes: md lg xl;
+$margin-note-number-baseline: -0.5rem;
+
+.margin-note-number { counter-increment: margin-note-counter; }
+
+body {
+    counter-reset: margin-note-counter;
+}
+
+.margin-note-number:after, .margin-note:before {
+    top: $margin-note-number-baseline;
+    font-size: 0.8rem;
+    position: relative;
+    vertical-align: baseline;
+}
+
+.margin-note:before {
+    content: counter(margin-note-counter) " ";
+}
+
+.margin-note-number:after {
+    content: counter(margin-note-counter);
+    margin-left: 0.1rem;
+}
+
+input.margin-note-toggle { display: none; }
+label.margin-note-number { display: inline; }
+label.margin-note-toggle:not(.margin-note-number) { display: none; }
+
+@include media-breakpoint-down(nth($without-margin-notes, -1)) {
+    label.margin-note-toggle:not(.margin-note-number) { display: inline; }
+    .margin-note { display: none; }
+    .margin-note-toggle:checked + .margin-note {
+        display: block;
+        margin: 1rem;
+    }
+}
+
+@include media-breakpoint-up(nth($with-margin-notes, 1)) {
+    .margin-note {
+        float: right;
+        clear: right;
+        position: relative;
+        font-size: 0.95rem;
+        line-height: 1.3;
+        padding-bottom: 2ex;
+        padding-left: 1rem;
+    }
+}
+
+@each $size in $with-margin-notes {
+    @include media-breakpoint-only($size) {
+        .margin-note {
+            margin-right: (map-get($container-max-widths, $size) / -4);
+            width: (map-get($container-max-widths, $size) / 4);
+        }
+    }
+}
+
+/* End Section */
+
+/* Add line separator between linenos and code */
+table.sourcetable td.linenos {
+    border-right: thin solid grey;
+}
+
+/* Make pre in sourcetable not screwed up */
+table.sourcetable pre {
+    margin-left: 0;
+    margin-bottom: 0;
+    padding: 0.5rem;
+    background-color: #f3f6fa;
+}
+
+table.sourcetable td.code {
+    width: 100%;
+}
+
+table.sourcetable {
+    width: 100%;
+}
+
+/* Section: parentheses highlight
+   Adapted from: http://community.schemewiki.org/?wiki-css */
+
+/* Top level */
+PRE.racket SPAN.paren:hover { background-color: #FFCFCF }
+
+/* Paren level 1 */
+PRE.racket SPAN.paren
+SPAN.paren:hover { background-color: #CFFFCF }
+
+/* Paren level 2 */
+PRE.racket SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFCFFF }
+
+/* Paren level 3 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFFFFF }
+
+/* Paren level 4 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #FFCFFF }
+
+/* Paren level 5 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #FFFFCF }
+
+/* Paren level 6 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren
+SPAN.paren:hover { background-color: #B4E1EA }
+
+/* Paren level 7 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #BDEAB4 }
+
+/* Paren level 8 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #EAD4B4 }
+
+/* Paren level 9 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #F4D0EC }
+
+/* Paren level 10 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #D0D9F4 }
+
+/* Paren level 11 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren
+SPAN.paren:hover { background-color: #FFCFCF }
+
+/* Paren level 12 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFFFCF }
+
+/* Paren level 13 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFCFFF }
+
+/* Paren level 14 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFFFFF }
+
+/* Paren level 15 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #FFCFFF }
+
+
+/* Paren level 16 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren
+SPAN.paren:hover { background-color: #FFFFCF }
+
+/* Paren level 17 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #BDEAB4 }
+
+/* Paren level 18 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #EAD4B4 }
+
+/* Paren level 19 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #F4D0EC }
+
+/* Paren level 20 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #D0D9F4 }
+
+/* Paren level 21 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren
+SPAN.paren:hover { background-color: #FFCFCF }
+
+/* Paren level 22 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFFFCF }
+
+/* Paren level 23 */
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:hover { background-color: #CFFFCF }
+
+PRE.racket SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren SPAN.paren SPAN.paren
+           SPAN.paren SPAN.paren SPAN.paren
+SPAN.paren:before { content: "{{23 levels of indentation?! Yiakes!}}" }
+
+
+
+/* End Section */
+
+/* Section: Highlight */
+
+PRE.racket SPAN.highlight-focus { background-color: $gray-300 }
+PRE.racket SPAN.highlight-add { background-color: #acf2bd }
+PRE.racket SPAN.highlight-remove { background-color: #fdb8c0 }
+
+/* End Section */

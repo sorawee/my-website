@@ -1,4 +1,7 @@
-#lang racket
+#lang racket/base
+
+;; This file is largely copied from
+;; https://github.com/otherjoel/try-pollen/blob/master/feed.xml.pp
 
 #|
   Pollen preprocessor file to generate a valid Atom 1.0 XML feed from a given
@@ -11,10 +14,14 @@
    -
 |#
 
-(require xml
-         pollen/core
+
+(require racket/contract
          racket/date
          racket/format
+         racket/string
+         racket/function
+         xml
+         pollen/core
          pollen/template)
 
 #|
@@ -23,7 +30,10 @@
   This is the function that interprets datestrings in the markup sources, in
   this case in the format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm".
 |#
-(require (only-in "pollen.rkt" filename->date get-summary get-markup-source))
+(require (only-in "pollen.rkt" get-summary))
+(require (only-in "utils/file.rkt" post-filename->date all-posts))
+(require (only-in "utils/utils.rkt" list->date))
+(require (only-in "utils/pollen-file.rkt" get-markup-source))
 
 #|
   Customizeable values
@@ -31,15 +41,15 @@
 
 (define opt-feed-ptree   "index.ptree")
 (define opt-author-name  "Sorawee Porncharoenwase")
-(define opt-author-email "sorawee.pwase@gmail.com")
-(define opt-feed-title   "Sorawee's Website")
-(define opt-feed-site    "http://sorawee.me/") ; This should end with /
+(define opt-author-email "sorawee@cs.washington.edu")
+(define opt-feed-title   "Sorawee Porncharoenwase")
+(define opt-feed-site    "https://homes.cs.washington.edu/~sorawee/") ; This should end with /
 
 #|
   You should customize the timezone/DST settings to match those of the
   computer that will be generating this feed.
 |#
-(define opt-feed-timezone -5)
+(define opt-feed-timezone -8)
 (define adjust-daylight-savings? #t)
 
 #|
@@ -51,7 +61,7 @@
   Defining a struct generates "accessor" functions for each of the struct's
   elements.
 |#
-(struct rss-item (title author link summary pubdate) #:transparent)
+(struct rss-item (title author link summary pubdate update) #:transparent)
 
 (define (as-cdata string)
   (cdata #f #f (format "<![CDATA[~a]]>" string)))
@@ -78,21 +88,23 @@
   the Atom 1.0 format.
 |#
 (define/contract (make-feed-xexpr title link rss-items)
-  (string? string? (listof rss-item?) . -> . xexpr?)
+  (string? string? (listof rss-item?) . -> . xexpr/c)
   (define items
     (for/list ([ri (in-list rss-items)])
       (define item-url (string-append* (list link (rss-item-link ri))))
       `(entry
         (author (name ,(rss-item-author ri)))
-        (updated ,(date->rfc3339 (rss-item-pubdate ri)))
+        (published ,(date->rfc3339 (rss-item-pubdate ri)))
+        (updated ,(date->rfc3339 (rss-item-update ri)))
         (title [[type "text"]] ,(rss-item-title ri))
         (link [[rel "alternate"] [href ,item-url]])
         (id ,item-url)
         (summary [[type "html"]]
-                 ,(as-cdata (string-append (rss-item-summary ri)
-                                           (xexpr->string `(p (a ((href ,item-url))
-                                                                 "Click here to read "
-                                                                 (i ,(rss-item-title ri)))))))))))
+                 ,(as-cdata (string-append
+                             (rss-item-summary ri)
+                             (xexpr->string `(p (a ((href ,item-url))
+                                                   "Click here to read "
+                                                   (i ,(rss-item-title ri)))))))))))
 
   `(feed [[xml:lang "en-us"] [xmlns "http://www.w3.org/2005/Atom"]]
          (title ,title)
@@ -106,34 +118,23 @@
          ,@items))
 
 
-#|
-  This is the function that determines whether to include a page in the feed.
-  This version simply tests for the existence of a publish date in the metas.
-|#
-(define (syndicate? sym)
-  (define s (symbol->string sym))
-  (and (string-contains? s "/")
-       (select-from-metas 'title
-                          (dynamic-require (get-markup-source s)
-                                           'metas))))
-
 (define (feed-item-structs)
-  (define rss-items (filter syndicate? (flatten (cdr (dynamic-require opt-feed-ptree 'doc)))))
+  (define rss-items (map path->string (all-posts)))
   (define rss-unsorted-item-structs
-    (map (λ (ri)
-           (define item-link (symbol->string ri))
+    (map (λ (item-link)
            (define item-path (get-markup-source item-link))
-           (define item-metas (dynamic-require item-path 'metas))
+           (define item-metas (get-metas item-path 'metas))
            (define item-title (select-from-metas 'title item-metas))
            (define item-content (get-doc item-path))
            (define item-author opt-author-name)
            (define item-summary (->html (or (get-summary item-content)
                                             '(p "(No summary given)"))))
-           (define item-pubdate (or (filename->date item-path)
+           (define item-pubdate (or (post-filename->date (path->string item-path))
                                     (select-from-metas 'published item-metas)))
+           (define item-update (or (list->date (hash-ref item-metas 'updated #f))
+                                   item-pubdate))
            (when (not item-pubdate) (printf "~a does not have pubdate" item-title))
-           ; TODO: fix this
-           (rss-item item-title item-author item-link item-summary item-pubdate))
+           (rss-item item-title item-author item-link item-summary item-pubdate item-update))
          rss-items))
     ;; sort from latest to earliest. Doesn't rely on order in ptree file, but rather pub date in source.
     (sort rss-unsorted-item-structs > #:key (λ(i) (date->seconds (rss-item-pubdate i)))))
@@ -154,5 +155,4 @@
 (define rss-xpr (make-feed-xexpr opt-feed-title opt-feed-site (feed-item-structs)))
 (define doc (complete-feed rss-xpr))
 (define metas (hash))
-(module+ main
-  (display doc))
+(module+ main (display doc))

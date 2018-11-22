@@ -1,0 +1,22 @@
+{
+  "name": "my-website",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sorawee/my-website.git"
+  },
+  "author": "Sorawee Porncharoenwase",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sorawee/my-website/issues"
+  },
+  "homepage": "https://github.com/sorawee/my-website#readme",
+  "dependencies": {
+    "bootstrap": "^4.1.3"
+  }
+}

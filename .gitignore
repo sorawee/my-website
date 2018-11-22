@@ -1,8 +1,11 @@
 *.html
-css/styles.css
+*.css
+*.map
 feed.xml
 compiled/
 *~
 tags/*
-!tags/tag.template
-tmp/*
+.sass-cache/*
+cache/
+node_modules/*
+tags.txt

@@ -1,0 +1,10 @@
+#lang pollen
+
+@(define-meta title "Tag: $tag")
+@(define-meta type index)
+
+@; Technically, we only need the tag variable and not the posts
+@; However, updating the posts also invalidating the cache
+@; which is what we want.
+
+@(! (map (curryr make-post #:see-more? #t) (list $posts)))

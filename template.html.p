@@ -1,120 +1,106 @@
-@(define path-prefix
-  (cond
-    [(string-contains (symbol->string here) "books/") "../../../"]
-    [(string-contains (symbol->string here) "tags/") "../../"] ; TODO: find a better way
-    [(string-contains (symbol->string here) "/") "../"]
-    [else "/"]))
-@(define source-file (select-from-metas 'here-path metas))
-@(define pollen-source-listing
-  (string-append "https://github.com/sorawee/my-website/blob/master/"
-                 (path->string (get-markup-source here))))
+@(current-here (symbol->string here))
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>@(extract-metas 'title)</title>
+    <meta name="author"      content="Sorawee Porncharoenwase">
+    <meta name="keywords"    content="<!-- TODO -->">
+    <meta name="viewport"    content="width=device-width, initial-scale=1.0">
+    <link rel="icon"      href="@|path-prefix|favicon.ico">
+    <link rel="canonical" href="<!-- TODO -->">
 
-@(define type (or (select 'type metas)
-                  (car (regexp-match #rx"^[^/]*" (symbol->string here)))))
-@(define (get-navbar) @ids{
-  <nav><ul>
-    @when/splice[(and (previous here) (not (eq? (parent here) (previous here))))]{
-      <li><a href="@|path-prefix|@|(previous here)|">&larr; Previous</a></li>
+    <!-- TODO -->
+    @;{
+    @(when rel-next @list{<link rel="next" href="@|rel-next|">})
+    @(when rel-prev @list{<link rel="prev" href="@|rel-prev|">})
     }
-    @when/splice[(not (eq? here 'index.html))]{
-      <li><a href="@|path-prefix|">&uarr; Home</a></li>
-    }
-    @when/splice[(and (next here) (member (next here) (siblings here)))]{
-      <li><a href="@|path-prefix|@|(next here)|">Next &rarr;</a></li>
-    }
-    @when/splice[(pdfable? source-file)]{
-      <li>
-        <a href="@pdfname[source-file]">
-          <img src="@|path-prefix|css/pdficon.png" width="15" height="15" alt="Download PDF" />
-          <span class="caps" style="font-style: normal">PDF</span>
-        </a>
-      </li>
-    }
-    <li style="width: auto;">
-      <a href="@|pollen-source-listing|" title="View the Pollen source for this file"
-         class="sourcelink code">&loz; Pollen Source
-      </a>
-    </li>
-  </ul></nav>})
-@(define (get-comment path)
-  @ids{
-<div id="disqus_thread"></div>
-<script>
-var disqus_config = function () {
-this.page.identifier = "@path"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-};
-(function() { // DON'T EDIT BELOW THIS LINE
-var d = document, s = d.createElement('script');
-s.src = '//sorawee.disqus.com/embed.js';
-s.setAttribute('data-timestamp', +new Date());
-(d.head || d.body).appendChild(s);
-})();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>})
 
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>
-    @(if (equal? "index" type)
-         super-title
-         (string-append (or (select 'title metas) (select 'special-title metas)) " — " super-title))
-  </title>
-  <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
-  <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" media="all" href="@|path-prefix|css/styles.css" />
-  <link rel="stylesheet" type="text/css" media="all" href="@|path-prefix|css/normalize.css" />
-  <link rel="stylesheet" type="text/css" media="all" href="@|path-prefix|css/styles-github.css" />
-  <script type="text/javascript"
-    src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS_CHTML">
-  </script>
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {inlineMath: [['$','$']]},
-      TeX: {
-        Macros: {
-          seq: ["{\\langle #1 \\rangle}", 1],
-          set: ["{\\{ #1 \\}}", 1],
-          setof: ["{\\{ #1 \\ | \\ #2 \\}}", 2],
-          N: "{\\mathbb N}",
-          R: "{\\mathbb R}",
-          Z: "{\\mathbb Z}",
-          Q: "{\\mathbb Q}",
-          floor: ["{\\lfloor #1 \\rfloor}", 1],
-          ceil: ["{\\lceil #1 \\rceil}", 1],
-        }
-      }
-    });
-  </script>
-  @(->html (make-highlight-css))
-</head>
-<body>
-  @(case type
-    [("blog") (get-navbar)]
-    [else ""])
-  <section class="page-header">
-    <h1 class="project-name">
-      <a href="@|path-prefix|">@|super-title|</a>
-    </h1>
-    <h2 class="project-tagline"></h2>
-    <a href="@|path-prefix|" class="btn">Blog</a>
-    <a href="@|path-prefix|books.html" class="btn">Books</a>
-    <a href="@|path-prefix|feed.xml" class="btn">RSS</a>
-    <a href="@|path-prefix|about.html" class="btn">About Me</a>
-  </section>
-  <section class="main-content" id="the-main">
-    <div id="real-content">
-      @(->html
-        (case type
-          [("index" "tag") (! (list `(h1 ,(hash-ref metas 'special-title)) (splice-top doc)))]
-          [("blog") (! (list `(h1 ,(hash-ref metas 'title)) (make-post here #:header #f)))]
-          [("books") (! (list `(h1 ,(hash-ref metas 'title)) (get-doc here)))]
-          [("page") (! (list `(h1 ,(hash-ref metas 'special-title)) (get-doc here)))]
-          [else "Under Construction!"]))
-    </div>
-    @(case type
-      [("blog" "books") (get-comment (symbol->string here))]
-      [else ""])
-  </section>
-</body>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+    <link rel="stylesheet" href="https://afeld.github.io/emoji-css/emoji.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="@|path-prefix|css/app.css">
+    <link rel="stylesheet" type="text/css" href="@|path-prefix|css/pygments.css">
+    <link rel="stylesheet" type="text/css" href="@|path-prefix|css/scribble.css">
+
+    <!-- TODO: Feeds -->
+    @;{
+    <link rel="alternate" type="application/atom+xml"
+          href="@|atom-feed-uri|" title="Atom Feed">
+    <link rel="alternate" type="application/rss+xml"
+          href="@|rss-feed-uri|" title="RSS Feed">
+    }
+    <!-- TODO: Google Analytics -->
+  </head>
+  <body>
+
+    <!-- A standard Twitter Bootstrap nav bar -->
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+      <div class="container">
+        <div class="navbar-brand site-info">
+          <h1>
+            <a href="@|path-prefix|index.html">Sorawee Porncharoenwase</a>
+          </h1>
+          <p>PhD Student at UW CSE</p>
+        </div>
+
+        <button class="navbar-toggler navbar-toggler-right"
+                type="button" data-toggle="collapse"
+                data-target="#navbar_collapse" aria-controls="navbar_collapse"
+                aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbar_collapse">
+          @(->html `(ul ([class "navbar-nav ml-auto"])
+                      ,(navbar-link "index.html" "Home")
+                      ,(navbar-link "blog" "Blog")
+                      ,(navbar-icon
+                        "mailto:sorawee@cs.washington.edu"
+                        "sorawee@cs.washington.edu"
+                        "fas fa-envelope")
+                      ,(navbar-icon
+                        (string-append "https://norfolk.cs.washington.edu/"
+                                       "directory/index.php?"
+                                       "prev_floor=3&show_room=CSE394")
+                        "CSE 394"
+                        "fas fa-map-marker-alt")
+                      ,(navbar-icon
+                        "https://www.github.com/sorawee"
+                        "@sorawee"
+                        "fab fa-github")
+                      ,(navbar-view-source)))
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div id="content-title--@(slug here)"
+           class="row content-type--@(symbol->string (get-meta-type))">
+        <!-- Main column -->
+        <div>@(->html (main-content))</div>
+      </div>
+      <footer>
+        <hr />
+        <div class="float-md-left">
+          Site generated by <a href="http://pollenpub.com">
+            Pollen
+          </a>/<a href="https://racket-lang.org">
+            Racket
+          </a>
+        </div>
+        <div class="float-md-right">
+          © Sorawee Porncharoenwase
+        </div>
+      </footer>
+    </main>
+    <!-- JS -->
+    <script type="text/javascript" src="@|path-prefix|js/jquery-3.2.1.slim.min.js"></script>
+    <script type="text/javascript" src="@|path-prefix|js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type="text/javascript" src="@|path-prefix|js/script.js"></script>
+  </body>
 </html>
