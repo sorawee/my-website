@@ -23,13 +23,13 @@
   (member 'DRAFT (select-from-metas 'tags (get-metas path))))
 
 (define/contract (pollen-post? path) (path-string? . -> . boolean?)
-  (match (path->string path)
+  (match (path-string->string path)
     [(pregexp #px"blog/\\d+/.*\\.poly\\.pm$") #t]
     [_ #f]))
+
 
 (define/contract (all-posts #:draft? [draft? #f])
   (() (#:draft? boolean?) . ->* . (listof path?))
   (define fake-is-draft? (if draft? (λ (_) #f) is-draft?))
-  (map (curry find-relative-path (current-project-root))
-       (find-files (conjoin pollen-post? (negate fake-is-draft?))
-                   (build-path (current-project-root) "blog"))))
+  (map rel-path (find-files (conjoin pollen-post? (negate fake-is-draft?))
+                            (build-path (current-project-root) "blog"))))

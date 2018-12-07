@@ -7,4 +7,4 @@
 
 @(blog-header)
 
-@(! (map (curryr make-post #:see-more? #t) (all-posts)))
+@(! (map (curry make-post #:see-more? #t) (all-posts)))

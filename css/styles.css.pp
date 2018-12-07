@@ -160,10 +160,6 @@ nav ul li {
   font-size: 80%;
 }
 
-.pubdate {
-  font-size: 80%;
-  font-style: italic;
-}
 
 nav ul li a:link {
   text-decoration: none;

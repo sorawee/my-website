@@ -81,6 +81,10 @@ footer {
     margin-bottom: 6ex;
 }
 
+li {
+    margin: 10px;
+}
+
 /* End Section */
 
 
@@ -114,6 +118,11 @@ footer {
     font-style: italic;
 }
 
+img.block-image {
+    display: block;
+    margin: 0 auto;
+}
+
 .update {
     margin-top: -1ex;
 }
@@ -142,6 +151,19 @@ article.post-summary {
     padding-bottom: 2ex;
 }
 
+.filebox > .filename {
+    padding-bottom: 0.1rem;
+    padding-top: 0.1rem;
+    padding-left: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    background: #f6f6f6;
+    font-family: triplicate-t4c, Consolas, Courier;
+    font-size: 1rem;
+    color: black;
+    font-weight: 700;
+    position: relative;
+    top: 1px;
+}
 
 .highlight {
     margin-bottom: 2ex;
@@ -169,6 +191,7 @@ article.post-summary {
 .dblp-icon {
     width: 1.5rem;
 }
+
 
 
 /* Section: margin-note */
@@ -410,7 +433,7 @@ SPAN.paren:before { content: "{{23 levels of indentation?! Yiakes!}}" }
 
 /* Section: Highlight */
 
-PRE.racket SPAN.highlight-focus { background-color: $gray-300 }
+PRE.racket SPAN.highlight-focus { background-color: yellow }
 PRE.racket SPAN.highlight-add { background-color: #acf2bd }
 PRE.racket SPAN.highlight-remove { background-color: #fdb8c0 }
 

@@ -6,6 +6,7 @@
          get-markup-source)
 
 (require racket/string
+         pollen/setup
          (except-in pollen/file get-markup-source))
 
 ;; A slightly smarter version of ->markup-source-path. A file listed as
@@ -14,7 +15,7 @@
 ;; of the .html.pm version; if that fails, the .poly.pm version is returned.
 (define (get-markup-source str)
   (let* ([default-source (->markup-source-path str)])
-    (if (file-exists? default-source)
+    (if (file-exists? (build-path (current-project-root) default-source))
         default-source
         (string->path (string-replace (path->string default-source)
                                       ".html" ".poly")))))
