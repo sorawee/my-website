@@ -7,8 +7,8 @@ publish:
 	export ENVIRON=production; \
 	rm -r ../my-website-build; \
 	raco pollen reset; \
-  raco pollen render -s .; \
 	racket tag-manager.rkt --publish; \
+  raco pollen render -s .; \
 	raco pollen publish . ../my-website-build
 
 

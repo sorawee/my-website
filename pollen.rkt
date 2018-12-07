@@ -59,11 +59,15 @@
 
 (define exclusion-mark-attr '(decode "exclude"))
 (define (root . items)
-  (decode `(decoded-root ,@items)
+  (println items)
+  (displayln "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+  (define res (decode `(decoded-root ,@items)
           #:txexpr-elements-proc decode-paragraphs
           #:string-proc (compose1 smart-quotes smart-dashes)
           #:exclude-tags '(style script pre code)
           #:exclude-attrs (list exclusion-mark-attr)))
+  (println res)
+  res)
 
 (define super-title "Sorawee's Website")
 (define (! lst) `(@ ,@lst))
@@ -83,7 +87,7 @@
       (input ([type "checkbox"]
               [id ,(format "margin-note-~a" refid)]
               [class "margin-note-toggle"]))
-      (span ([class "margin-note"]) ,@xs)))
+      (span ([class "margin-note"] [style "display: inline;"] ,exclusion-mark-attr) ,@xs)))
 
 
 (define (kbds s)
@@ -132,6 +136,9 @@
 
 (define/contract (numberlist . items) (item? ... . -> . xexpr/c) `(ol ,@items))
 (define/contract (itemlist . items) (item? ... . -> . xexpr/c) `(ul ,@items))
+(define/contract (inline-itemlist . items) (item? ... . -> . xexpr/c)
+  `(span ([class "inline-itemlist"])
+         ,@(map (λ (item) `(span ([class "inline-item"]) ,@(rest item))) items)))
 
 (define/contract (argumentlist . items) (item? ... . -> . xexpr/c)
   (define-values (premises conclusion) (split-at items (sub1 (length items))))

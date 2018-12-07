@@ -196,10 +196,10 @@ This rainbow trick requires that matching parentheses are grouped together in a 
 
 @itemlist[
   @item{If we group parentheses first by using @code{read}, the output would be an S-expression. Pygments, which expects a string as an input, won't be able to function. That means we need to manually highlight syntax... which seems really difficult.}
-  @item{If we use Pygments first, the output would be an @link["https://docs.racket-lang.org/xml/index.html#%28def._%28%28lib._xml%2Fprivate%2Fxexpr-core..rkt%29._xexpr~3f%29%29"]{X-expression} representing an HTML DOM tree. @code{read}, which expects a string as an input, won't be able to function. That means we need to manually extract and parse code from the tree. This is not trivial at all. For instance, we need to be able to distinguish between an actual left parenthesis and a left parenthesis in double quotes.}
+  @item{If we use Pygments first, the output would be an @link["https://docs.racket-lang.org/xml/index.html#%28def._%28%28lib._xml%2Fprivate%2Fxexpr-core..rkt%29._xexpr~3f%29%29"]{X-expression} representing an HTML DOM tree. @code{read}, which expects a string as an input, won't be able to function. That means we need to manually extract and parse code from the tree. This is not trivial at all. For instance, it's not clear how to distinguish between an actual left parenthesis and a left parenthesis as a string.}
 ]
 
-However, one cool thing about Pygments is that it does not only do a syntax highlight but also acts as a lexer. Here's an output example from Pygments:
+However, one cool feature of Pygments is that it does not only do a syntax highlight but also acts as a lexer. Here's an output example from Pygments:
 
 @highlight['racket]|{
   '(div ((class "highlight")) (table ((class "sourcetable"))
@@ -229,7 +229,7 @@ Notice that all parentheses are tagged with the class @code{p} properly, so the 
      ; add class scheme to pre to make CSS works
 }|
 
-So what we need to do is to write a function @code{parenthesize} to match @code{(span ((class "p")) "(")} with @code{(span ((class "p")) ")")}. Notice however that right now adjacent parentheses are grouped together, like @code{(span ((class "p")) "))")}. Therefore, we need to first normalize them by splitting them to multiple tokens: @code{(span ((class "p")) ")")} and @code{(span ((class "p")) ")")}.
+What we need to do next is to write a function @code{parenthesize} to match @code{(span ((class "p")) "(")} with @code{(span ((class "p")) ")")}. Note however that right now adjacent parentheses are grouped together, like @code{(span ((class "p")) "))")}. Therefore, we need to first normalize them by splitting them to multiple tokens: @code{(span ((class "p")) ")")} and @code{(span ((class "p")) ")")}.
 
 @highlight['racket]|{
   (define (normalize lst)
@@ -267,7 +267,7 @@ And finally define @code{parenthesize}:
   (define parenthesize (compose1 iter normalize))
 }|
 
-And @emph{holy cow, it works!} Pretty quickly, too. The exact time complexity is unclear since I do not exactly know how Racket's magical pattern matching works. Note that the matching patterns are not static data, so the compiler would not be able to exploit this much. Thus, we can assume that the compiler will generate a dumb code to try to match things. Finding an innermost matching parentheses definitely takes at least linear time, and we repeat it until there's no more matching parentheses. That is, the algorithm would be at least quadratic. Since the code in my blog would be at most 500 lines long, that's pretty chill.
+And @emph{holy cow, it works!} Pretty quickly, too. The exact time complexity is unclear since I do not exactly know how Racket's magical pattern matching works. Note that the matching patterns are not static data, so the compiler would not be able to exploit this much. We can assume that the compiler will generate a dumb code to try to match things. Finding an innermost matching parentheses definitely takes at least linear time, and we repeat it until there's no more matching parentheses. That is, the algorithm would be at least quadratic. Since the code in my blog would be at most 500 lines long, that's pretty chill.
 
 But we can improve this and make it linear time. There are several ways to do it. I came up with a stack-based solution, and @link["http://justinpombrio.net"]{Justin} seems to like it:
 
@@ -304,4 +304,4 @@ This algorithm also tolerates mismatched parentheses (but not mismatch type). Th
   ((cons 3 4)
 }|
 
-And that, my friends, is how I get rainbow parentheses on my site. @emj{:)}
+And this is how I get rainbow parentheses on my site. @emj{:)}

@@ -96,6 +96,34 @@ li {
 
 /* End Section */
 
+/* Section: highlight */
+
+.filebox > .filename {
+    padding-bottom: 0.1rem;
+    padding-top: 0.1rem;
+    padding-left: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    background: #f6f6f6;
+    font-family: triplicate-t4c, Consolas, Courier;
+    font-size: 1rem;
+    color: black;
+    font-weight: 700;
+    position: relative;
+    top: 1px;
+}
+
+.highlight {
+    margin-bottom: 2ex;
+    overflow-x: auto;
+}
+
+.highlight a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* End Section */
+
 
 #content-title--index-html h2 span {
     font-size: 70%;
@@ -151,29 +179,6 @@ article.post-summary {
     padding-bottom: 2ex;
 }
 
-.filebox > .filename {
-    padding-bottom: 0.1rem;
-    padding-top: 0.1rem;
-    padding-left: 0.5rem;
-    border-top-right-radius: 0.5rem;
-    background: #f6f6f6;
-    font-family: triplicate-t4c, Consolas, Courier;
-    font-size: 1rem;
-    color: black;
-    font-weight: 700;
-    position: relative;
-    top: 1px;
-}
-
-.highlight {
-    margin-bottom: 2ex;
-    overflow-x: auto;
-}
-
-.highlight a {
-    color: inherit;
-    text-decoration: underline;
-}
 
 .date {
     font-style: italic;
@@ -192,9 +197,19 @@ article.post-summary {
     width: 1.5rem;
 }
 
+/* Section: inline list */
+.inline-itemlist {
+    padding-left: 1rem;
+}
 
+.inline-itemlist > .inline-item {
+    list-style-position: inside;
+    display: list-item;
+}
+/* End Section */
 
 /* Section: margin-note */
+
 
 $without-margin-notes: xs sm;
 $with-margin-notes: md lg xl;
