@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide coq-tactic coq usage use-when tac coq-interactive)
+(provide coq-tactic coq usage use-when tac coq-interactive equivalent-to caveat)
 (require racket/sequence
          racket/list
          racket/pretty
@@ -17,12 +17,6 @@
 
 (define current-tactic (make-parameter #f))
 
-#;(define (resolve-goals xs prev)
-  (match xs
-    [(list) '()]
-    [(list (== same-as-previous) rst ...) (cons prev (resolve-goals rst prev))]
-    [(list fst rst ...) (cons fst (resolve-goals rst fst))]))
-
 (define (analyze/stream xs acc-cmd)
   (match xs
     [(list) (list (reverse acc-cmd))]
@@ -35,10 +29,9 @@
        [else (analyze/stream rst (cons fst acc-cmd))])]))
 
 (define (analyze/error xs)
-  (define-values (left right) (splitf-at xs (λ (lines) (not (string-prefix? (first lines) "Toplevel input,")))))
-  (if (cons? right)
-      (append left (list (first right)))
-      left))
+  (define-values (left right)
+    (splitf-at xs (λ (lines) (not (string-prefix? (first lines) "Toplevel input,")))))
+  (if (cons? right) (append left (list (first right))) left))
 
 (define (analyze/message s)
   (define collected '())
@@ -99,6 +92,7 @@
 
 (define refid 0)
 
+
 (define (coq-box script . xs)
   (set! refid (add1 refid))
   (define items
@@ -107,34 +101,42 @@
                [i (in-naturals)])
       `(@ (div ([class ,(format "coq-pane col-md-6 show-all show-~a" i)])
                ,(first item)))))
-  `(@ (div ([class "coq-box row no-gutters"]
-            [id ,(format "coq-box-~a" refid)])
-           (div ([class "coq-script col-md-6"]) ,script)
-           ,@items)
-      (div ([class "row coq-buttons"])
-           (div ([class "col text-center"]
+  `(@ (div ([class "coq-buttons row no-gutters"])
+           (div ([class "col text-right"]
                  [data-size ,(number->string (length xs))]
                  [data-refid ,(number->string refid)])
                 (button ([class "prev-button mr-1"]) "Previous")
-                (button ([class "next-button ml-1"]) "Next")))))
-
-(define sep "TERM1NAT1NGSEPARAT0R")
-(define sep-span `(span ([class "n"]) ,sep))
+                (button ([class "next-button ml-1"]) "Next")))
+      (div ([class "coq-box row no-gutters"]
+            [id ,(format "coq-box-~a" refid)])
+           (div ([class "coq-script col-md-6"]) ,script)
+           ,@items)))
 
 (define (transform-term-sep toks acc i)
+  ;; There are three possible end commands: dot, bullet, and curly bracket,
+  ;; as we can see from Proof General's coq-indent.el
+  ;;
+  ;; (defconst coq-end-command-regexp
+  ;;   (concat coq-period-end-command "\\|"
+  ;;           coq-bullet-end-command "\\|"
+  ;;           coq-curlybracket-end-command))
+  ;;
+  ;; We will parse code in a stupid way since the correct way seems very complex.
+  ;; If there are cases that break, we will fix them later.
+
   (define (make-next obj)
     `((span ([class ,(format "show-all show-~a" i)]) ,@(reverse obj))))
 
   (match toks
     [(list) (reverse acc)]
     [(list (and fst `(span ([class "o"])
-                           ,(and sym (or "." "{" "}" (pregexp #px"[-+*]+")))))
+                           ,(and sym (or (pregexp #px"^.*\\.$") "{" "}" (pregexp #px"^[-+*]+$")))))
            rst ...)
      (define cont?
-       (cond
-         [(string=? "." sym) #t]
-         [(string=? "{" sym) #t]
-         [(string=? "}" sym) #t]
+       (match sym
+         [(pregexp #px"^.*\\.$") #t]
+         ["{" #t]
+         ["}" #t]
          [else (match acc
                  [(list (pregexp #px"\n *") _ ...) #t]
                  [_ #f])]))
@@ -168,5 +170,11 @@
 (define (usage . xs) `(div ([class "coq-usage"]) (b "Usage: ") ,@xs))
 
 (define (use-when . xs) `(div ([class "coq-use-when"]) (b "Use it when: ") ,@xs))
+
+(define (equivalent-to . xs)
+  `(div ([class "coq-equivalent"]) (b "The tactic is equivalent to: ") ,@xs))
+
+(define (caveat . xs)
+  `(div ([class "coq-caveat"]) (b "Caveat: ") ,@xs))
 
 (define (tac . xs) `(code ,@(current-tactic) ,@xs))

@@ -146,14 +146,9 @@ li {
     @extend .col-md-9
 }
 
-.content-type--page {
-    @extend .justify-content-center
-}
-
 .content-type--page > div {
-    @extend .col-md-12
+    @extend .col-md-9
 }
-
 
 .pubdate, .update {
     font-style: italic;
@@ -460,8 +455,8 @@ SPAN.highlight-remove { background-color: #fdb8c0 }
 /* End Section */
 
 /* Section: Coq */
-h3.coq-tactic, .coq-usage, .coq-use-when {
-    margin-bottom: 2ex;
+h3.coq-tactic, .coq-usage, .coq-use-when, .coq-equivalent, .coq-caveat {
+    margin: 1em 0;
 }
 
 h3.coq-tactic {
@@ -494,6 +489,7 @@ h3.coq-tactic {
 }
 
 .coq-buttons {
-    margin-bottom: 2ex;
+    padding: 0.5rem;
+    background-color: lightsteelblue;
 }
 /* End Section */
