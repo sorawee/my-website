@@ -50,7 +50,11 @@ label {
 }
 
 h2 {
-    font-size: 150%;
+    font-size: $h2-font-size * 0.8;
+}
+
+h3 {
+    font-size: $h3-font-size * 0.8;
 }
 
 /* from https://developer.mozilla.org/en-US/docs/Tools/Page_Inspector/Keyboard_shortcuts */
@@ -142,6 +146,15 @@ li {
     @extend .col-md-9
 }
 
+.content-type--page {
+    @extend .justify-content-center
+}
+
+.content-type--page > div {
+    @extend .col-md-12
+}
+
+
 .pubdate, .update {
     font-style: italic;
 }
@@ -197,19 +210,11 @@ article.post-summary {
     width: 1.5rem;
 }
 
-/* Section: inline list */
-.inline-itemlist {
-    padding-left: 1rem;
-}
-
-.inline-itemlist > .inline-item {
-    list-style-position: inside;
-    display: list-item;
-}
-/* End Section */
-
 /* Section: margin-note */
 
+.margin-note ul {
+    padding-left: 1rem;
+}
 
 $without-margin-notes: xs sm;
 $with-margin-notes: md lg xl;
@@ -448,8 +453,47 @@ SPAN.paren:before { content: "{{23 levels of indentation?! Yiakes!}}" }
 
 /* Section: Highlight */
 
-PRE.racket SPAN.highlight-focus { background-color: yellow }
-PRE.racket SPAN.highlight-add { background-color: #acf2bd }
-PRE.racket SPAN.highlight-remove { background-color: #fdb8c0 }
+SPAN.highlight-focus { background-color: rgba(yellow, 0.7) }
+SPAN.highlight-add { background-color: #acf2bd }
+SPAN.highlight-remove { background-color: #fdb8c0 }
 
+/* End Section */
+
+/* Section: Coq */
+h3.coq-tactic, .coq-usage, .coq-use-when {
+    margin-bottom: 2ex;
+}
+
+h3.coq-tactic {
+    margin-top: 5ex;
+}
+
+.coq-box {
+    display: flex;
+    margin-bottom: 1ex;
+}
+
+.coq-box .highlight {
+    margin-bottom: 0;
+}
+
+.coq-script {
+    border-right: 1px solid;
+}
+
+.coq-pane, .coq-script {
+    flex-grow: 1;
+}
+
+.coq-pane *, .coq-script * {
+    height: 100%;
+}
+
+.coq-pane .linenos {
+    display: none;
+}
+
+.coq-buttons {
+    margin-bottom: 2ex;
+}
 /* End Section */

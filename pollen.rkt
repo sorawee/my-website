@@ -22,6 +22,7 @@
          txexpr
 
          "utils/utils.rkt"
+         "utils/mark.rkt"
          "utils/highlight.rkt"
          "utils/file.rkt"
          "utils/pollen-file.rkt" ;; patched pollen/file
@@ -41,13 +42,17 @@
          slug
          path-prefix
          highlight
+         mark
+         mark-now
          (all-defined-out))
 
 (module setup racket/base
   (provide (all-defined-out))
   (require racket/function
-           racket/string)
+           racket/string
+           syntax/modresolve)
   (define allow-unbound-ids #f)
+  (define cache-watchlist (map resolve-module-path '("coq-tactics/coq.rkt")))
   (define (omitted-path? p)
     (cond
       [(ormap (curry string-contains? (path->string p))
@@ -59,17 +64,12 @@
 
 (define exclusion-mark-attr '(decode "exclude"))
 (define (root . items)
-  (println items)
-  (displayln "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-  (define res (decode `(decoded-root ,@items)
+  (decode `(decoded-root ,@items)
           #:txexpr-elements-proc decode-paragraphs
           #:string-proc (compose1 smart-quotes smart-dashes)
           #:exclude-tags '(style script pre code)
           #:exclude-attrs (list exclusion-mark-attr)))
-  (println res)
-  res)
 
-(define super-title "Sorawee's Website")
 (define (! lst) `(@ ,@lst))
 
 (define (pdfable? file-path)
@@ -78,8 +78,12 @@
 (define (pdfname page) (string-replace (path->string (file-name-from-path page))
                                        "poly.pm" "pdf"))
 
-(define refid 0)
+(define (strip-first-paragraph xs)
+  (match xs
+    [`((p ,inside ...) ,rst ...) `(,@inside ,@rst)]
+    [_ xs]))
 
+(define refid 0)
 (define (margin-note . xs)
   (set! refid (add1 refid))
   `(@ (label ([for ,(format "margin-note-~a" refid)]
@@ -87,7 +91,8 @@
       (input ([type "checkbox"]
               [id ,(format "margin-note-~a" refid)]
               [class "margin-note-toggle"]))
-      (span ([class "margin-note"] [style "display: inline;"] ,exclusion-mark-attr) ,@xs)))
+      (object ([class "margin-note"] [style "display: inline;"] ,exclusion-mark-attr)
+              ,@(strip-first-paragraph xs))))
 
 
 (define (kbds s)
@@ -193,6 +198,7 @@
         (div ([class "filename"] ,exclusion-mark-attr) ,(~a filename))
         ,@xs))
 
+
 (define (filebox-highlight filename lang . xs)
   (filebox filename (apply highlight lang xs)))
 
@@ -277,8 +283,9 @@
 (define (emph . xs) `(em ,@xs))
 (define (italic . xs) `(i ,@xs))
 (define (item . items) `(li ,@items))
-(define (mvar . xs) (apply string-append (append '("⟪") xs '("⟫"))))
+(define (mvar . xs) (apply string-append (append '("‹") xs '("›"))))
 
+(define (title) `(h1 ,(select-from-metas 'title (current-metas))))
 (define (section . xs) `(h2 ,@xs))
 (define (subsection . xs) `(h3 ,@xs))
 (define (subsubsection . xs) `(h4 ,@xs))

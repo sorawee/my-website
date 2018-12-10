@@ -1,23 +1,28 @@
 #lang racket/base
 
-(provide highlight)
+(provide highlight highlight-match)
 (require racket/match
          racket/function
          racket/string
          racket/contract
          racket/list
          xml
+         txexpr
          (rename-in pollen/unstable/pygments [highlight original-highlight])
          "cache.rkt"
          "doc-uri.rkt")
 
-(define (highlight/core lang code-original)
-  (define out (apply original-highlight (cons lang code-original)
-                     #:python-executable "python3"))
-  (define (extract-highlight f out class)
-    (match out
-      [`(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ,things-in-pre ...)) "\n")))) "\n")
-       `(div ((class "highlight")) (table ((class "sourcetable")) (tbody (tr (td ((class "linenos")) (div ((class "linenodiv")) (pre ,linenos))) (td ((class "code")) (div ((class "source")) (pre ((class ,(string-append class #;" tex2jax_process"))) ,@(f things-in-pre))) "\n")))) "\n")]))
+(define (cleanup-list xs)
+  (match xs
+    [(list) '()]
+    [(list (list inside ...) outside ...)
+     (append (cleanup-list inside) (cleanup-list outside))]
+    [(list fst rst ...) (cons fst (cleanup-list rst))]))
+
+(define (highlight/core lang code-original lineno?)
+  (define out (apply original-highlight (cons lang (cleanup-list code-original))
+                     #:python-executable "python3"
+                     #:line-numbers? lineno?))
 
   (match lang
     ['racket
@@ -77,8 +82,31 @@
                  [_ (cons e stack)]))] ; if too many right parentheses
             [_ (values (cons e stack))])))
       (reverse parsed-flipped))
-      (extract-highlight (compose1 parenthesize) out "racket")]
-    [_ (extract-highlight values out "other")]))
+      (highlight-match parenthesize out #:class "racket")]
+    [_ (highlight-match values out #:class "other")]))
 
-(define (highlight lang . code-original)
-  (do-cache highlight/core lang code-original))
+(define (highlight #:lineno? [lineno? #t] lang . code-original)
+  (do-cache highlight/core lang code-original lineno?))
+
+(define (highlight-match f blob #:class [class ""])
+  (match blob
+    [(or `(div ((class "highlight"))
+               (table ((class "sourcetable"))
+                      (tbody
+                       (tr ,linenos ...
+                           (td ((class "code"))
+                               (div ((class "source")) ,pre) "\n")))) "\n")
+         ;; makes linenos in the second case matches empty list
+         `(div ((class "highlight"))
+               (div ((class "source")) ,pre) "\n\n" ,linenos ...))
+     (define class-name (string-append (second (or (assoc 'class (get-attrs pre))
+                                                   (list "" ""))) " " class))
+     (define things-in-pre (get-elements pre))
+     `(div ((class "highlight"))
+           (table ((class "sourcetable"))
+                  (tbody
+                   (tr ,@linenos
+                       (td ((class "code"))
+                           (div ((class "source"))
+                                (pre ((class ,class-name))
+                                     ,@(f things-in-pre))) "\n")))) "\n")]))

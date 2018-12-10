@@ -31,5 +31,7 @@
 (define/contract (all-posts #:draft? [draft? #f])
   (() (#:draft? boolean?) . ->* . (listof path?))
   (define fake-is-draft? (if draft? (λ (_) #f) is-draft?))
-  (map rel-path (find-files (conjoin pollen-post? (negate fake-is-draft?))
-                            (build-path (current-project-root) "blog"))))
+  (reverse
+   (sort (map rel-path (find-files (conjoin pollen-post? (negate fake-is-draft?))
+                                   (build-path (current-project-root) "blog")))
+         path<?)))
