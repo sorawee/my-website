@@ -10,13 +10,20 @@
 This section is organized according to a combination of proof state and intention rather than tactic names.
 
 @subsection{Solving based on the shape of the goal}
-@lookup-tac["reflexivity"]
-@lookup-tac["constructor"]
+
+@group[
+  (lookup-tac "reflexivity")
+  (lookup-tac "constructor")
+]
 
 @subsection{Solving by absurdity}
-@lookup-tac["discriminate"]
+
+@group[
+  (lookup-tac "discriminate")
+]
 
 @subsection{Uncategorized}
+
 @lookup-uncat[]
 
 @section{Tactic Index}
@@ -172,11 +179,11 @@ Proof.
 Qed.
 }
 
-When the goal is @code{even 4}, the first @tac{} finds that the goal can be constructed by using @code{even_SS}. However, it cannot solve the goal because @code{even_SS} requires a proof of @code{even n} (which is @code{even 2} in this case) to construct a proof of @code{even (2 + n)} (which is @code{even 4} in this case). This application of @tac{} thus can only reduce the goal to @code{even 2}.
+When the goal is @code{even 4}, the first @tac{} finds that the goal can be constructed by using @code{even_SS}. However, it cannot solve the goal because @code{even_SS} requires a proof of @code{even n} (which is @code{even 2} in this case) to construct a proof of @code{even (2 + n)} (which is @code{even 4} in this case). This @tac{} thus can only reduce the goal to @code{even 2}.
 
 Similarly, when the goal is @code{even 2}, the second @tac{} finds that the goal can be constructed by using @code{even_SS} and reduces the goal to @code{even 0}.
 
-When the goal is @code{even 0}, the last @tac{} finds that the goal can be constructed by using @code{even_O}. As @code{even_O} doesn't require anything to construct @code{even 0}, so the last @tac{} solves the goal.
+When the goal is @code{even 0}, the last @tac{} finds that the goal can be constructed by using @code{even_O}. As @code{even_O} doesn't require anything to construct @code{even 0}, the last @tac{} solves the goal.
 
 @caveat{When there are multiple constructors that can be used to constructed the goal, @tac{} will use the first one, which might not be the one that you want. In that event, the goal might be reduced to a proof state that can't be proven, as we can see below.}
 
@@ -194,6 +201,7 @@ Proof.
 }
 
 The above lemma can be proven by specifying which constructor should be used manually. E.g., by using @tactic{exact FooB}, @tactic{apply FooB}, etc.
+
 @;{we can also use the trick `constructor; fail.` Do we want to write it here?}
 
 @relevant-tactics[

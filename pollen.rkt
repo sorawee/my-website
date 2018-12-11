@@ -280,6 +280,7 @@
 (define nbsp 160)
 (define apos "’")
 
+(define (group . xs) `(@ ,@xs))
 (define (emph . xs) `(em ,@xs))
 (define (italic . xs) `(i ,@xs))
 (define (item . items) `(li ,@items))

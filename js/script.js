@@ -14,8 +14,10 @@ function contButton(contFunc, bound) {
     $(`#coq-box-${refid} .coq-pane.show-all`).css('display', 'none');
     $(`#coq-box-${refid} .coq-pane.show-${contIndex}`).css('display', 'block');
 
-    $(`#coq-box-${refid} .coq-script .show-all`).css('background-color', '');
-    $(`#coq-box-${refid} .coq-script .show-${contIndex}`).css('background-color', '#acf2bd');
+    $(`#coq-box-${refid} .coq-script .show-all`)
+      .css('background-color', '');
+    $(`#coq-box-${refid} .coq-script .show-${contIndex}`)
+      .css('background-color', '#acf2bd');
   };
 }
 
@@ -39,9 +41,6 @@ $(function () {
       }
     }
   });
-
-  $('.coq-pane.show-all').css('display', 'none');
-  $('.coq-pane.show-0').css('display', 'block');
 
   $('.next-button').click(contButton(x => x + 1, -1));
   $('.prev-button').click(contButton(x => x - 1, 0));

@@ -504,4 +504,13 @@ h3.coq-tactic {
     padding: 0.5rem;
     background-color: lightsteelblue;
 }
+
+.coq-pane.show-all {
+    display: none;
+}
+
+.coq-pane.show-all.show-0 {
+    display: block;
+}
+
 /* End Section */

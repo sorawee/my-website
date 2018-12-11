@@ -27,13 +27,21 @@
   (define allow-unbound-ids #f)
   (define command-char #\@))
 
+
+(define collected-tactics '())
+(define mentioned-tactics '())
+(define uniq-tactics #f)
+
 (define (root . items)
-  (decode `(decoded-root ,@items)
-          #:txexpr-elements-proc decode-paragraphs
-          #:string-proc (compose1 smart-quotes smart-dashes)
-          #:inline-txexpr-proc inline-txexpr-proc
-          #:exclude-tags '(style script pre code)
-          #:exclude-attrs (list exclusion-mark-attr)))
+  (set! uniq-tactics (remove-duplicates (map caar collected-tactics)))
+  (define first-decoded
+    (decode `(decoded-root ,@items)
+            #:txexpr-elements-proc decode-paragraphs
+            #:string-proc (compose1 smart-quotes smart-dashes)
+            #:exclude-tags '(style script pre code)
+            #:exclude-attrs (list exclusion-mark-attr)))
+  (decode `(decoded-root ,@(rest first-decoded))
+          #:txexpr-proc txexpr-proc))
 
 (define (linkify tname acc)
   (define (linkify/one s)
@@ -44,11 +52,7 @@
       [else (list s)]))
   (apply append (map linkify/one acc)))
 
-
-(define collected-tactics '())
-(define mentioned-tactics '())
-
-(define (inline-txexpr-proc tx)
+(define (txexpr-proc tx)
   (match tx
     [`(lookup-tac ,name ,index)
      (define result (assoc (cons name index) collected-tactics))
@@ -57,10 +61,11 @@
            "If " ,@(cdr result) ".. use " (a ([href ,(~a "#tactic-" name)])
                                              (code ,(caar result))) ".")]
     [`(tactic ,xs ...)
-     `(code ,@(foldl linkify xs (remove-duplicates
-                                 (map caar collected-tactics))))]
+     `(code ,@(foldl linkify xs uniq-tactics))]
+    [`(tactic-raw ,xs ...)
+     `(@ ,@(foldl linkify xs uniq-tactics))]
     [`(lookup-uncat)
-     `(@ ,@(map (λ (p) (inline-txexpr-proc `(lookup-tac ,(car p) ,(cdr p))))
+     `(@ ,@(map (λ (p) (txexpr-proc `(lookup-tac ,(car p) ,(cdr p))))
                 (set-subtract (map car collected-tactics) mentioned-tactics)))]
     [_ tx]))
 
@@ -128,6 +133,7 @@
             (analyze/stream _ '())
             (drop-right _ 1) ;; the last one is always blank
             analyze/error
+
             (map (curryr string-join "\n") _)
             (map analyze/message _)
             (analyze/prev _ "")
@@ -213,9 +219,15 @@
        [else (transform-term-sep rst next i)])]
     [(list fst rst ...) (transform-term-sep rst (cons fst acc) i)]))
 
+(define (transform-linkify xs)
+  (map (match-lambda
+         [`(span ([class ,(and class-name (or "k" "kp"))]) ,kw)
+          `(span ([class ,class-name]) (tactic-raw ,kw))]
+         [e e]) xs))
+
 (define (coq-block . xs)
   (highlight-match
-   (curryr transform-term-sep '() 1)
+   (compose1 (curryr transform-term-sep '() 1) transform-linkify)
    (apply highlight "coq" xs)))
 
 (define (usage . xs) `(div ([class "coq-usage"]) (b "Usage: ") ,@xs))
