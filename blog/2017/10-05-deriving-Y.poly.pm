@@ -4,13 +4,13 @@
 @(define-meta tags (programming-languages y-combinator))
 @(define-meta updated (2018 12 9))
 
-The Y combinator is a somewhat magical aspect of the untyped lambda calculus. Many people presented explanations of this magic, but I found them somewhat unsatisfactory. Some explanations start by showing the combinator in the beginning and then simply demonstrate that the given combinator is correct. Some other explanations contain lines like "Why don't we try passing it to itself? And look, this turns out to be exactly what we want!" These explanations don't give an intuition for how one could @emph{constructively} obtain the combinator. @emph{What on earth makes you think that passing it to itself is a good idea?} As such, this post, intended for those who know the Y combinator already but do not satisfy with the existing explanations, attempts to explain how one could constructively derive the Y combinator.
+The Y combinator is a somewhat magical aspect of the untyped lambda calculus. Many people presented explanations of this magic, but I found them somewhat unsatisfactory. Some explanations show the combinator in the beginning and then simply demonstrate that the given combinator is correct. Some other explanations contain lines like "Why don't we try passing it to itself? And look, this turns out to be exactly what we want!" These explanations don't give an intuition for how one could @emph{constructively} obtain the combinator. @italic{What on earth makes you think that passing it to itself is a good idea?} As such, this post, intended for those who know the Y combinator already but do not satisfy with the existing explanations, attempts to explain how one could constructively derive the Y combinator.
 
 @see-more
 
 @section{Introduction}
 
-In @link["https://en.wikipedia.org/wiki/Lambda_calculus"]{lambda calculus}, there's no primitive support to define recursive functions. @emph{Can we define recursive functions in lambda calculus regardless? And how?}
+In @link["https://en.wikipedia.org/wiki/Lambda_calculus"]{lambda calculus}, there's no primitive support to define recursive functions. @italic{Can we define recursive functions in lambda calculus regardless? And how?}
 
 While our question focuses on lambda calculus, to make it easier to follow, we will use an actual programming language. Here, I choose to use @link["http://racket-lang.org"]{Racket}@margin-note{The choice of Racket is that:
 @itemlist[
@@ -267,7 +267,7 @@ Recall that @code{(@mvar{make-recursion-possible} fact-maker)} should produce th
       (+ (fact 3) (fact 4)))))
 }
 
-Two nested @code{let} can be fused together in a straightforward way:
+There's no @code{let} in lambda calculus, so we will reduce number of @code{let}s by fusing the two nested @code{let} together in a straightforward way:
 
 @highlight['racket]{
 (let ([fact-maker (λ (fact)
@@ -427,35 +427,7 @@ Using @link["https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B7-conversion"]{@
    (λ (x) (f (x x)))))
 }
 
-The @${\eta}-conversion intuitively should preserve functional equivalence. However, this is not totally true because in some @link["https://en.wikipedia.org/wiki/Evaluation_strategy"]{@emph{evaluation strategies}}@margin-note{I personally think that this Wikipedia page is poorly written (as of December 2018), so I will try to summarize the page in this section.}, @${\eta}-conversion could add or remove delayed computation, potentially changing the functional equivalence.
-
-An evaluation strategy describes @emph{what reducible term} (redex) should be @link["https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B2-reduction"]{@${\beta}-reduced}. For example, consider @code{(double (double 1))} where @code{double} is defined as @code{(λ (x) (+ x x))}. There are several strategies to evaluate this expression. The call-by-value strategy always reduces the leftmost-innermost redex (outside of lambda functions):
-
-@highlight['racket]{
-(double @mark["focus"]{(double 1)}) ==> (double @mark["add"]{(+ 1 1)})
-(double @mark["focus"]{(+ 1 1)})    ==> (double @mark["add"]{2})
-@mark["focus"]{(double 2)}          ==> @mark["add"]{(+ 2 2)}
-@mark["focus"]{(+ 2 2)}             ==> @mark["add"]{4}
-}
-
-The call-by-name strategy, in contrast, always reduces the leftmost-outermost redex (outside of lambda functions):
-
-@highlight['racket]{
-@mark["focus"]{(double (double 1))}       ==> @mark["add"]{(+ (double 1) (double 1))}
-(+ @mark["focus"]{(double 1)} (double 1)) ==> (+ @mark["add"]{(+ 1 1)} (double 1))
-(+ @mark["focus"]{(+ 1 1)} (double 1))    ==> (+ @mark["add"]{2} (double 1))
-(+ 2 @mark["focus"]{(double 1)})          ==> (+ 2 @mark["add"]{(+ 1 1)})
-(+ 2 @mark["focus"]{(+ 1 1)})             ==> (+ 2 @mark["add"]{2})
-@mark["focus"]{(+ 2 2)}                   ==> @mark["add"]{4}
-}
-
-The above example seems to show that no matter what strategy we use, the answer will always be the same (although one strategy might be more efficient than the other). Is this intuition correct, and if so, how is it possible for the Y combinator to be functionally equivalent to the Z combinator in only some evaluation strategies?
-
-The answer is given by the @link["https://en.wikipedia.org/wiki/Church%E2%80%93Rosser_theorem"]{Church-Rosser theorem} which states that given a term @${t}, @emph{if two strategies successfully evaluate @${t} to values}, then the two values from both strategies are equal. The theorem shows that our intuition is only partially correct because it doesn't give any guarantee when a strategy doesn't successfully evaluate a term to a value. This is exactly the reason why the Y combinator is not functionally equivalent to the Z combinator in some strategies like call-by-value, as we will see below.
-
-As it turns out, while the call-by-value strategy is generally more efficient (requires fewer reduction steps), it is potentially unsafe since it is possible that the evaluation will result in an infinite loop when reducing some terms that could be successfully reduced to a value had we use another strategy instead. On the other hand, the call-by-name strategy is generally less effecient but safe: if a term could be reduced to a value, it will.
-
-A concrete example is @code{(Y make-fact)}. Using the call-by-value strategy results in an infinite loop:
+The @${\eta}-conversion intuitively should preserve semantic equivalence. However, this is not totally true. In fact, any attempt to use @code{Y} will always result in an infinite loop in Racket (even though we have seen earlier that the Z combinator works)! We can manually step through the evaluation of @code{(Y make-fact)} to see what's going on:
 
 @highlight['racket]{
 1.  (@mark["focus"]{Y} make-fact)
@@ -494,7 +466,7 @@ A concrete example is @code{(Y make-fact)}. Using the call-by-value strategy res
 ...
 }
 
-In contrast, using the call-by-name strategy results in the factorial function:
+While Racket evaluates the term @code{(Y make-fact)} exactly as described above, we can imagine another way to evaluate the term:
 
 @highlight['racket]{
 1.  (@mark["focus"]{Y} make-fact)
@@ -519,7 +491,33 @@ In contrast, using the call-by-name strategy results in the factorial function:
     }
 }
 
-Most programming languages, including the standard Racket, uses the call-by-value because of its efficiency. Hence, we can't really run the Y combinator in the standard Racket. One cool feature of Racket however is its ability to create and use a new programming language via @link["https://docs.racket-lang.org/guide/more-hash-lang.html"]{the hash lang line}. In fact, the creators of Racket even call Racket @link["https://cacm.acm.org/magazines/2018/3/225475-a-programmable-programming-language/fulltext"]{A Programmable Programming Language}. It is relatively very easy to create a call-by-name language with Racket. Even better, someone did that already and we can just use it!
+In this evaluation trace, @code{(Y make-fact)} successfully evaluates to the factorial function! The difference of these two evaluation traces is due to @link["https://en.wikipedia.org/wiki/Evaluation_strategy"]{@emph{evaluation strategies}}@margin-note{I personally think that this Wikipedia page is poorly written (as of December 2018), so I will try to summarize the page in this section.}, which describes @emph{what reducible term} (redex) should be @link["https://en.wikipedia.org/wiki/Lambda_calculus#%CE%B2-reduction"]{@${\beta}-reduced}.
+
+Most programming languages, including Racket, uses the first evaluation strategy presented above which results in an infinite loop for @code{(Y make-fact)}. The strategy is named @emph{call-by-value}, which always reduces the @emph{leftmost-innermost} redex (outside of lambda functions). As another example, the strategy would evaluate @code{(double (double 1))} where @code{double} is defined as @code{(λ (x) (+ x x))} like this:
+
+@highlight['racket]{
+(double @mark["focus"]{(double 1)}) ==> (double @mark["add"]{(+ 1 1)})
+(double @mark["focus"]{(+ 1 1)})    ==> (double @mark["add"]{2})
+@mark["focus"]{(double 2)}          ==> @mark["add"]{(+ 2 2)}
+@mark["focus"]{(+ 2 2)}             ==> @mark["add"]{4}
+}
+
+The second strategy presented above which successfully evaluates @code{(Y make-fact)} to the factorial function is named @emph{call-by-name}. The strategy always reduces the @emph{rightmost-outermost} redex (outside of lambda functions). It would evaluate @code{(double (double 1))} like this:
+
+@highlight['racket]{
+@mark["focus"]{(double (double 1))}       ==> @mark["add"]{(+ (double 1) (double 1))}
+(+ @mark["focus"]{(double 1)} (double 1)) ==> (+ @mark["add"]{(+ 1 1)} (double 1))
+(+ @mark["focus"]{(+ 1 1)} (double 1))    ==> (+ @mark["add"]{2} (double 1))
+(+ 2 @mark["focus"]{(double 1)})          ==> (+ 2 @mark["add"]{(+ 1 1)})
+(+ 2 @mark["focus"]{(+ 1 1)})             ==> (+ 2 @mark["add"]{2})
+@mark["focus"]{(+ 2 2)}                   ==> @mark["add"]{4}
+}
+
+We have seen earlier that different evaluation stategies might not evaluate a term to the same result. This is disconcerting. Fortunately, the @link["https://en.wikipedia.org/wiki/Church%E2%80%93Rosser_theorem"]{Church-Rosser theorem} guarantees that given a term @${t}, @emph{if two strategies successfully evaluate @${t} to values}, then the two values from both strategies are equal, as we can see from the @code{(double (double 1))} example. The only case that two evaluation strategies would evaluate a term to different results is when one of them doesn't terminate, which is exactly what happens with the Y combinator.
+
+There are advantages and disadvantages for each evaluation strategies. The call by name strategy, for example, has a beautiful property that if a term could be evaluate to a value by @emph{some} evaluation strategy, then the call by name strategy will be able to evaluate the term to the value as well. The disadvantages are (1) it's not really efficient, taking 6 steps to evaluate @code{(double (double 1))} while the call by value strategy can evaluate the term in only 4 steps, and (2) it doesn't interact well with mutation which is a feature that exists in most programming languages. This is the reason why most programming languages use the call by value strategy.
+
+Due to the call by value strategy, we can't run the Y combinator in the standard Racket language. One cool feature of Racket however is its ability to create and use a new programming language via @link["https://docs.racket-lang.org/guide/more-hash-lang.html"]{the hash lang line}. In fact, the creators of Racket even call Racket @link["https://cacm.acm.org/magazines/2018/3/225475-a-programmable-programming-language/fulltext"]{a Programmable Programming Language}. It is very easy to create a call-by-name language with Racket. Even better, someone did that already and we can just use it!
 
 @highlight['racket]{
 #lang lazy
@@ -537,7 +535,7 @@ Most programming languages, including the standard Racket, uses the call-by-valu
 ;; => 30
 }
 
-It appears that call-by-value and call-by-name are historically known as @emph{applicative-order} and @emph{normal-order} respectively@margin-note{@link["http://www.cs.cornell.edu/courses/cs6110/2014sp/Lectures/lec04.pdf"]{Some lectures} state that they are in fact different because applicative-order and normal-order can perform reduction even inside lambda functions.}. For this reason, the Z combinator is also known as the applicative-order Y combinator.
+It appears that call-by-value and call-by-name are also known as @emph{applicative-order} and @emph{normal-order} respectively@margin-note{@link["http://www.cs.cornell.edu/courses/cs6110/2014sp/Lectures/lec04.pdf"]{Some sources} indicate that they are different because the applicative-order and normal-order strategy can perform reduction inside lambda functions, but this distinction doesn't really matter for our purpose.}. For this reason, the Z combinator is also known as the applicative-order Y combinator.
 
 @section{Y and me}
 

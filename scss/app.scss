@@ -455,12 +455,22 @@ SPAN.highlight-remove { background-color: #fdb8c0 }
 /* End Section */
 
 /* Section: Coq */
-h3.coq-tactic, .coq-usage, .coq-use-when, .coq-equivalent, .coq-caveat {
+h3.coq-tactic, .coq-usage, .coq-use-when, .coq-relevant, .coq-caveat, .coq-desc {
     margin: 1em 0;
+}
+
+.inverted-tactic {
+    display: list-item;
+    list-style-position: inside;
+    margin: 10px;
 }
 
 h3.coq-tactic {
     margin-top: 5ex;
+}
+
+#content-title--coq-tactics-index-html h2 {
+    font-size: $h2-font-size;
 }
 
 .coq-box {
@@ -472,8 +482,10 @@ h3.coq-tactic {
     margin-bottom: 0;
 }
 
-.coq-script {
-    border-right: 1px solid;
+@include media-breakpoint-up(md) {
+    .coq-script {
+        border-right: 1px solid;
+    }
 }
 
 .coq-pane, .coq-script {

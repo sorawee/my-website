@@ -1,7 +1,12 @@
 #lang racket/base
 
-(provide coq-tactic coq usage use-when tac coq-interactive equivalent-to caveat)
-(require racket/sequence
+(provide (all-from-out "../pollen.rkt")
+         root
+         coq-tactic usage use-when tac coq-interactive relevant-tactics caveat
+         additional-desc lookup-tac tactic lookup-uncat)
+
+(require (except-in "../pollen.rkt" root)
+         racket/sequence
          racket/list
          racket/pretty
          racket/function
@@ -10,10 +15,54 @@
          racket/format
          racket/port
          racket/string
+         racket/set
+         pollen/decode
          threading
          "../utils/highlight.rkt"
          "../utils/cache.rkt"
          "../utils/mark.rkt")
+
+(module setup racket/base
+  (provide (all-defined-out))
+  (define allow-unbound-ids #f)
+  (define command-char #\@))
+
+(define (root . items)
+  (decode `(decoded-root ,@items)
+          #:txexpr-elements-proc decode-paragraphs
+          #:string-proc (compose1 smart-quotes smart-dashes)
+          #:inline-txexpr-proc inline-txexpr-proc
+          #:exclude-tags '(style script pre code)
+          #:exclude-attrs (list exclusion-mark-attr)))
+
+(define (linkify tname acc)
+  (define (linkify/one s)
+    (cond
+      [(string? s)
+       (add-between (string-split s tname #:trim? #f)
+                    `(a ([href ,(~a "#tactic-" tname)]) ,tname))]
+      [else (list s)]))
+  (apply append (map linkify/one acc)))
+
+
+(define collected-tactics '())
+(define mentioned-tactics '())
+
+(define (inline-txexpr-proc tx)
+  (match tx
+    [`(lookup-tac ,name ,index)
+     (define result (assoc (cons name index) collected-tactics))
+     (set! mentioned-tactics (cons (cons name index) mentioned-tactics))
+     `(div ([class "inverted-tactic"])
+           "If " ,@(cdr result) ".. use " (a ([href ,(~a "#tactic-" name)])
+                                             (code ,(caar result))) ".")]
+    [`(tactic ,xs ...)
+     `(code ,@(foldl linkify xs (remove-duplicates
+                                 (map caar collected-tactics))))]
+    [`(lookup-uncat)
+     `(@ ,@(map (λ (p) (inline-txexpr-proc `(lookup-tac ,(car p) ,(cdr p))))
+                (set-subtract (map car collected-tactics) mentioned-tactics)))]
+    [_ tx]))
 
 (define current-tactic (make-parameter #f))
 
@@ -51,7 +100,9 @@
 (define (analyze/combine pair) (string-append (car pair) "\n\n" (cdr pair)))
 
 (define (coq-interactive . xs)
-  (do-cache coq-interactive/private xs #:file "coq.rktd"))
+  (match-define (cons script boxes)
+    (do-cache coq-interactive/private xs #:file "coq.rktd"))
+  (apply coq-box script boxes))
 
 (define (coq-interactive/private xs)
   (define code (apply string-append (apply append (map clear-mark xs))))
@@ -72,23 +123,23 @@
 
   (set! output (rest (reverse output)))
 
-  (apply coq-box
-         (apply coq-block xs)
-         (~> output
-             (analyze/stream _ '())
-             (drop-right _ 1) ;; the last one is always blank
-             analyze/error
-             (map (curryr string-join "\n") _)
-             (map analyze/message _)
-             (analyze/prev _ "")
-             (map analyze/combine _)
-             (map coq-block _))))
+  (cons (apply coq-block xs)
+        (~> output
+            (analyze/stream _ '())
+            (drop-right _ 1) ;; the last one is always blank
+            analyze/error
+            (map (curryr string-join "\n") _)
+            (map analyze/message _)
+            (analyze/prev _ "")
+            (map analyze/combine _)
+            (map coq-block _))))
 
-(define (coq-tactic . xs)
-  (current-tactic xs)
-  `(h3 ([class "coq-tactic"]) (code ,@xs)))
+(define (coq-tactic s)
+  (current-tactic s)
+  `(h3 ([class "coq-tactic"]
+        [id ,(~a "tactic-" s)]) ,(tactic s)))
 
-(define (coq . xs) `(code ,@xs))
+(define (tactic . xs) `(tactic ,@xs))
 
 (define refid 0)
 
@@ -169,12 +220,23 @@
 
 (define (usage . xs) `(div ([class "coq-usage"]) (b "Usage: ") ,@xs))
 
-(define (use-when . xs) `(div ([class "coq-use-when"]) (b "Use it when: ") ,@xs))
 
-(define (equivalent-to . xs)
-  `(div ([class "coq-equivalent"]) (b "The tactic is equivalent to: ") ,@xs))
+(define (use-when #:index [index "default"] . xs)
+  (set! collected-tactics (cons (cons (cons (current-tactic) index) xs)
+                                collected-tactics))
+  `(div ([class "coq-use-when"]) (b "Use it when: ") ,@xs))
+
+(define (relevant-tactics . xs)
+  `(div ([class "coq-relevant"]) (b "Relevant tactics: ") (ul ,@xs)))
+
+(define (additional-desc . xs)
+  `(div ([class "coq-desc"]) (b "Additional description: ") ,@xs))
 
 (define (caveat . xs)
   `(div ([class "coq-caveat"]) (b "Caveat: ") ,@xs))
 
-(define (tac . xs) `(code ,@(current-tactic) ,@xs))
+(define (tac . xs) (apply tactic (current-tactic) xs))
+
+(define (lookup-tac #:index [index "default"] name) `(lookup-tac ,name ,index))
+
+(define (lookup-uncat) `(lookup-uncat))
