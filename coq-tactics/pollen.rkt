@@ -5,7 +5,7 @@
          coq-tactic usage use-when tac coq-interactive relevant-tactics caveat
          additional-desc lookup-tac tactic lookup-uncat)
 
-(require (except-in "../pollen.rkt" root)
+(require (rename-in "../pollen.rkt" [root $root])
          racket/sequence
          racket/list
          racket/pretty
@@ -18,15 +18,15 @@
          racket/set
          pollen/decode
          threading
+         txexpr
          "../utils/highlight.rkt"
          "../utils/cache.rkt"
-         "../utils/mark.rkt")
+         "../rkt/mark.rkt")
 
 (module setup racket/base
   (provide (all-defined-out))
   (define allow-unbound-ids #f)
   (define command-char #\@))
-
 
 (define collected-tactics '())
 (define mentioned-tactics '())
@@ -34,14 +34,7 @@
 
 (define (root . items)
   (set! uniq-tactics (remove-duplicates (map caar collected-tactics)))
-  (define first-decoded
-    (decode `(decoded-root ,@items)
-            #:txexpr-elements-proc decode-paragraphs
-            #:string-proc (compose1 smart-quotes smart-dashes)
-            #:exclude-tags '(style script pre code)
-            #:exclude-attrs (list exclusion-mark-attr)))
-  (decode `(decoded-root ,@(rest first-decoded))
-          #:txexpr-proc txexpr-proc))
+  (apply $root (rest (decode (! items) #:inline-txexpr-proc txexpr-proc))))
 
 (define (linkify tname acc)
   (define (linkify/one s)
@@ -50,23 +43,23 @@
        (add-between (string-split s tname #:trim? #f)
                     `(a ([href ,(~a "#tactic-" tname)]) ,tname))]
       [else (list s)]))
-  (apply append (map linkify/one acc)))
+  (append-map linkify/one acc))
 
 (define (txexpr-proc tx)
   (match tx
-    [`(lookup-tac ,name ,index)
+    [(txexpr '@lookup-tac _ (list name index))
      (define result (assoc (cons name index) collected-tactics))
      (set! mentioned-tactics (cons (cons name index) mentioned-tactics))
      `(div ([class "inverted-tactic"])
            "If " ,@(cdr result) ".. use " (a ([href ,(~a "#tactic-" name)])
                                              (code ,(caar result))) ".")]
-    [`(tactic ,xs ...)
-     `(code ,@(foldl linkify xs uniq-tactics))]
-    [`(tactic-raw ,xs ...)
-     `(@ ,@(foldl linkify xs uniq-tactics))]
-    [`(lookup-uncat)
-     `(@ ,@(map (λ (p) (txexpr-proc `(lookup-tac ,(car p) ,(cdr p))))
-                (set-subtract (map car collected-tactics) mentioned-tactics)))]
+    ;; tactic that stands alone and should be teletyped
+    [(txexpr '@tactic _ xs) `(code ,@(foldl linkify xs uniq-tactics))]
+    ;; tactic that is already teletyped
+    [(txexpr '@tactic-raw _ xs) (! (foldl linkify xs uniq-tactics))]
+    [(txexpr '@lookup-uncat _ _)
+     (! (map (λ (p) (txexpr-proc `(lookup-tac ,(car p) ,(cdr p))))
+             (set-subtract (map car collected-tactics) mentioned-tactics)))]
     [_ tx]))
 
 (define current-tactic (make-parameter #f))
@@ -104,16 +97,10 @@
 
 (define (analyze/combine pair) (string-append (car pair) "\n\n" (cdr pair)))
 
-(define (coq-interactive . xs)
-  (match-define (cons script boxes)
-    (do-cache coq-interactive/private xs #:file "coq.rktd"))
-  (apply coq-box script boxes))
-
-(define (coq-interactive/private xs)
-  (define code (apply string-append (apply append (map clear-mark xs))))
+(define (call-coq src)
   (match-define (list in out _ err proc)
     (process (~a (find-executable-path "coqtop") " -emacs 2>&1")))
-  (display code out)
+  (display src out)
   (close-output-port out)
   (proc 'wait)
   (define output '())
@@ -125,30 +112,31 @@
   (close-input-port in)
   (close-input-port err)
   (proc 'kill)
+  (rest (reverse output)))
 
-  (set! output (rest (reverse output)))
-
-  (cons (apply coq-block xs)
-        (~> output
-            (analyze/stream _ '())
-            (drop-right _ 1) ;; the last one is always blank
-            analyze/error
-
-            (map (curryr string-join "\n") _)
-            (map analyze/message _)
-            (analyze/prev _ "")
-            (map analyze/combine _)
-            (map coq-block _))))
+(define (coq-interactive . xs)
+  (define src (string-append* (rest (decode (! xs) #:inline-txexpr-proc remove-mark))))
+  (define output (do-cache call-coq src #:file "coq.rktd"))
+  (apply coq-box
+         (apply coq-block xs)
+         (~> output
+             (analyze/stream _ '())
+             (drop-right _ 1) ;; the last one is always blank
+             analyze/error
+             (map (curryr string-join "\n") _)
+             (map analyze/message _)
+             (analyze/prev _ "")
+             (map analyze/combine _)
+             (map coq-block _))))
 
 (define (coq-tactic s)
   (current-tactic s)
   `(h3 ([class "coq-tactic"]
         [id ,(~a "tactic-" s)]) ,(tactic s)))
 
-(define (tactic . xs) `(tactic ,@xs))
+(define (tactic . xs) `(@tactic ,@xs))
 
 (define refid 0)
-
 
 (define (coq-box script . xs)
   (set! refid (add1 refid))
@@ -187,7 +175,10 @@
   (match toks
     [(list) (reverse acc)]
     [(list (and fst `(span ([class "o"])
-                           ,(and sym (or (pregexp #px"^.*\\.$") "{" "}" (pregexp #px"^[-+*]+$")))))
+                           ,(and sym (or (pregexp #px"^.*\\.$")
+                                         "{"
+                                         "}"
+                                         (pregexp #px"^[-+*]+$")))))
            rst ...)
      (define cont?
        (match sym
@@ -203,12 +194,12 @@
           (make-next (cons fst acc))
           (add1 i))
          (transform-term-sep rst (cons fst acc) i))]
-    [(list '(span ([class "err"]) "⟦")
+    [(list `(span ([class "err"]) ,(== left-marker))
            `(span ([class "n"]) ,class-name)
            " "
-           (and inside (not '(span ([class "err"]) "⟧"))) ...
+           (and inside (not `(span ([class "err"]) ,(== right-marker)))) ...
            " "
-           '(span ([class "err"]) "⟧")
+           `(span ([class "err"]) ,(== right-marker))
            rst ...)
      (define next (cons `(span ([class ,(format "highlight-~a" class-name)])
                                ,@inside)
@@ -222,7 +213,7 @@
 (define (transform-linkify xs)
   (map (match-lambda
          [`(span ([class ,(and class-name (or "k" "kp"))]) ,kw)
-          `(span ([class ,class-name]) (tactic-raw ,kw))]
+          `(span ([class ,class-name]) (@tactic-raw ,kw))]
          [e e]) xs))
 
 (define (coq-block . xs)
@@ -249,6 +240,6 @@
 
 (define (tac . xs) (apply tactic (current-tactic) xs))
 
-(define (lookup-tac #:index [index "default"] name) `(lookup-tac ,name ,index))
+(define (lookup-tac #:index [index "default"] name) `(@lookup-tac ,name ,index))
 
-(define (lookup-uncat) `(lookup-uncat))
+(define (lookup-uncat) `(@lookup-uncat))

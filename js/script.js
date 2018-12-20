@@ -39,6 +39,9 @@ $(function () {
         floor: ["{\\lfloor #1 \\rfloor}", 1],
         ceil: ["{\\lceil #1 \\rceil}", 1],
       }
+    },
+    menuSettings: {
+      autocollapse: true
     }
   });
 

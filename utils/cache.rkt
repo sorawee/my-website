@@ -7,7 +7,7 @@
          pollen/setup
          "utils.rkt")
 
-(define (do-cache f #:file [file "cache.rktd"] #:limit [size 100] . args)
+(define (do-cache f #:file [file "cache.rktd"] #:limit [size 1000] . args)
   (define cache-dir (build-path (current-project-root) "cache"))
   (when (not (directory-exists? cache-dir))
     (make-directory* cache-dir))

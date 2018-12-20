@@ -7,22 +7,21 @@
          racket/contract
          racket/list
          xml
+         pollen/decode
          txexpr
          (rename-in pollen/unstable/pygments [highlight original-highlight])
+         "../rkt/tag-utils.rkt"
+         "../rkt/mark.rkt"
          "cache.rkt"
          "doc-uri.rkt")
 
-(define (cleanup-list xs)
-  (match xs
-    [(list) '()]
-    [(list (list inside ...) outside ...)
-     (append (cleanup-list inside) (cleanup-list outside))]
-    [(list fst rst ...) (cons fst (cleanup-list rst))]))
-
 (define (highlight/core lang code-original lineno?)
-  (define out (apply original-highlight (cons lang (cleanup-list code-original))
-                     #:python-executable "python3"
-                     #:line-numbers? lineno?))
+  (define out
+    (apply
+     original-highlight
+     (cons lang (rest (decode (! code-original) #:inline-txexpr-proc flatten-mark)))
+     #:python-executable "python3"
+     #:line-numbers? lineno?))
 
   (match lang
     ['racket
@@ -31,9 +30,11 @@
      (define left-bracket? (curry equal? '(span ((class "p")) "[")))
      (define right-bracket? (curry equal? '(span ((class "p")) "]")))
      (define left-focus?
-       (match-lambda [`(span ([class "n"]) ,s) (string-prefix? s "⟦")] [_ #f]))
+       (match-lambda [`(span ([class "n"]) ,s) (string-prefix? s left-marker)]
+                     [_ #f]))
      (define right-focus?
-       (match-lambda [`(span ([class "n"]) ,s) (string-prefix? s "⟧")] [_ #f]))
+       (match-lambda [`(span ([class "n"]) ,s) (string-prefix? s right-marker)]
+                     [_ #f]))
      (define left-thing? (λ (x) (ormap (λ (fn?) (fn? x)) (list left-paren? left-bracket? left-focus?))))
      (define right-thing? (λ (x) (ormap (λ (fn?) (fn? x)) (list right-paren? right-bracket? right-focus?))))
 

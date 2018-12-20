@@ -20,9 +20,11 @@
          racket/format
          racket/string
          racket/function
+         racket/match
          xml
          pollen/core
-         pollen/template)
+         pollen/template
+         txexpr)
 
 #|
   Really only need datestring->date from here. If you wanted to make this file
@@ -30,7 +32,8 @@
   This is the function that interprets datestrings in the markup sources, in
   this case in the format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm".
 |#
-(require (only-in "pollen.rkt" get-summary))
+(require (only-in "rkt/post-utils.rkt" get-summary))
+(require (only-in "rkt/tags-utils.rkt" !))
 (require (only-in "utils/file.rkt" post-filename->date all-posts))
 (require (only-in "utils/utils.rkt" list->date))
 (require (only-in "utils/pollen-file.rkt" get-markup-source))
@@ -125,7 +128,10 @@
            (define item-path (get-markup-source item-link))
            (define item-metas (get-metas item-path 'metas))
            (define item-title (select-from-metas 'title item-metas))
-           (define item-content (get-doc item-path))
+           (define item-content
+             (match (get-doc item-path)
+               [(txexpr '@@app _ (list _ xs ...)) (! xs)]
+               [_ (error 'feed-item-structs "Found non-@@app post")]))
            (define item-author opt-author-name)
            (define item-summary (->html (or (get-summary item-content)
                                             '(p "(No summary given)"))))

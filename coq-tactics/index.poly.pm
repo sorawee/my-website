@@ -3,7 +3,7 @@
 @(define-meta title "Yet Another Coq Tactic Index")
 @(define-meta type page)
 
-@title[]
+@title{@current-title[] (Pre-Alpha)}
 
 @section{Inverted Tactic Index}
 
@@ -11,14 +11,14 @@ This section is organized according to a combination of proof state and intentio
 
 @subsection{Solving based on the shape of the goal}
 
-@group[
+@!![
   (lookup-tac "reflexivity")
   (lookup-tac "constructor")
 ]
 
 @subsection{Solving by absurdity}
 
-@group[
+@!![
   (lookup-tac "discriminate")
 ]
 
@@ -118,7 +118,7 @@ Proof.
 Qed.
 }
 
-The reason that @tac{} works in the above example is that @code{1} is a shorthand for @code{S @mark-now["focus"]{O}}, and @code{2 + y} is a shorthand for @code{S (S O) + y} which computes (by definition of @code{+}) to @code{S @mark-now["focus"]{(S y)}}, and the highlighted constructors are mismatched.
+The reason that @tac{} works in the above example is that @code{1} is a shorthand for @code{S @mark["focus"]{O}}, and @code{2 + y} is a shorthand for @code{S (S O) + y} which computes (by definition of @code{+}) to @code{S @mark["focus"]{(S y)}}, and the highlighted constructors are mismatched.
 
 The example below fails because there's no immediate mismatched constructors.
 
@@ -215,6 +215,15 @@ The above lemma can be proven by specifying which constructor should be used man
 
 @use-when{you want to @emph{solve} the goal because the goal is @code{@mvar{term}}.}
 
+@section{Why not jsCoq?}
+
+@link["https://github.com/ejgallego/jscoq"]{jsCoq} is great! However, it's unsuitable to this project for several reasons:
+
+@itemlist[
+  @item{It's too slow to load.}
+  @item{It can't step through several scripts independently.}
+  @item{The sidebar is too obtrusive and not really configurable.}
+]
 
 @section{Acknowledgements}
 

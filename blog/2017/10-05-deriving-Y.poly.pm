@@ -131,10 +131,10 @@ Recall that this is known as the @${\Omega}-combinator, a classic example of a l
 
 @section{Deriving a fake Y combinator}
 
-While we now know how to write recursive functions in lambda calculus, the transformed function doesn't look like the original function that we would write in the @code{letrec} version. It would be nice if there is a term @code{@mvar{make-recursion-possible}} such that:
+While we now know how to write recursive functions in lambda calculus, the transformed function doesn't look like the original function that we would write in the @code{letrec} version. It would be nice if there is a term @code{@mvar{make-recursion}} such that:
 
 @highlight['racket]{
-(@mvar{make-recursion-possible}
+(@mvar{make-recursion}
   (λ (n)
     (case n
       [(0) 1]
@@ -144,7 +144,7 @@ While we now know how to write recursive functions in lambda calculus, the trans
 produces the actual factorial function. However, this clearly won't work, because the highlighted identifiers are going to be unbound. To fix this, we simply make it bound by wrapping a lambda function around the body.
 
 @highlight['racket]{
-(@mvar{make-recursion-possible}
+(@mvar{make-recursion}
   (@mark["add"]{λ (fact)}
     (λ (n)
       (case n
@@ -152,9 +152,9 @@ produces the actual factorial function. However, this clearly won't work, becaus
         [else (* n (fact (- n 1)))]))))
 }
 
-We will call the lambda function that is the argument of @code{@mvar{make-recursion-possible}} a @emph{recursion maker}. And what we want is to find @code{@mvar{make-recursion-possible}} so that for any @code{@mvar{recursion-maker}}, @code{(@mvar{make-recursion-possible} @mvar{recursion-maker})} produces the actual recursive function.
+We will call the lambda function that is the argument of @code{@mvar{make-recursion}} a @emph{recursion maker}. What we want then is to find @code{@mvar{make-recursion}} so that for any @code{@mvar{recursion-maker}}, @code{(@mvar{make-recursion} @mvar{recursion-maker})} produces the actual recursive function.
 
-How should we approach this? We don't know what @code{@mvar{make-recursion-possible}} looks like. But for the factorial function, we do know what @code{@mvar{fact-maker}} looks like. The strategy, then, is to extract the @code{@mvar{fact-maker}}:
+How should we approach this? We don't know what @code{@mvar{make-recursion}} looks like. But for the factorial function, we do know what @code{@mvar{fact-maker}} looks like. The strategy, then, is to extract the @code{@mvar{fact-maker}}:
 
 @highlight['racket]{
 (λ (fact)
@@ -174,7 +174,7 @@ from our current code:
   (+ (fact fact 3) (fact fact 4)))
 }
 
-Hopefully, what's left is going to be @code{@mvar{make-recursion-possible}}
+Hopefully, what's left is going to be @code{@mvar{make-recursion}}
 
 To extract @code{@mvar{fact-maker}}, as a first step, we can avoid prepending @code{fact} at the callsites of @code{fact} inside the lambda function. Simply transform:
 
@@ -211,7 +211,7 @@ which shadows @code{fact} that consumes two arguments with @code{fact} that cons
   (+ ((fact fact) 3) ((fact fact) 4)))
 }
 
-The @code{(let ([fact (λ (n) ((fact fact) n))]) ...)} doesn't depend on the parameter @code{n}, so we can lift it up without changing the semantics:
+Notice that the let statement @code{(let ([fact @mvar{v}]) ...)} where @code{@mvar{v}} is @code{(λ (n) ((fact fact) n))} can be lifted up without changing the semantics because @code{@mvar{v}} doesn't depend on the parameter @code{n}:
 
 @highlight['racket]{
 (let ([fact (λ (fact)
@@ -225,7 +225,7 @@ The @code{(let ([fact (λ (n) ((fact fact) n))]) ...)} doesn't depend on the par
   (+ ((fact fact) 3) ((fact fact) 4)))
 }
 
-Now our highlighted code is very similar to the @code{@mvar{fact-maker}}! What we want to do next is to somehow convert @code{(let ([fact ...]) body...)} into @code{(λ (fact) body...)} and move @code{(λ (n) ((fact fact) n))} somewhere else. That's simply desugaring @code{let}!
+Our highlighted code is now even more similar to the @code{@mvar{fact-maker}}. What we want to do next is to somehow convert @code{(let ([fact @mvar{v}]) @mvar{body})} into @code{(λ (fact) @mvar{body})} and move @code{@mvar{v}} somewhere else. That's simply desugaring @code{let}!
 
 @highlight['racket]{
 (let ([fact (λ (fact)
@@ -242,7 +242,7 @@ Now our highlighted code is very similar to the @code{@mvar{fact-maker}}! What w
 
 and we finally have the @code{@mvar{fact-maker}}!
 
-Our next mission is to obtain the @code{@mvar{make-recursion-possible}}. To make things tidy, let's first abstract @code{@mvar{fact-maker}} out as a variable named @code{fact-maker}:
+Our next mission is to obtain the @code{@mvar{make-recursion}}. To make things tidy, let's first abstract @code{@mvar{fact-maker}} out as a variable named @code{fact-maker}:
 
 @highlight['racket]{
 (let ([fact-maker (λ (fact)
@@ -254,7 +254,7 @@ Our next mission is to obtain the @code{@mvar{make-recursion-possible}}. To make
     (+ ((fact fact) 3) ((fact fact) 4))))
 }
 
-Recall that @code{(@mvar{make-recursion-possible} fact-maker)} should produce the actual factorial function which consumes only one number as an argument. Right now we still have @code{((fact fact) 3)} instead of @code{(fact 3)}. We can fix this using shadowing like what we did earlier:
+Recall that @code{(@mvar{make-recursion} fact-maker)} should produce the actual factorial function which consumes only one number as an argument. Right now we still have @code{((fact fact) 3)} instead of @code{(fact 3)}. We can fix this using shadowing like what we did earlier:
 
 @highlight['racket]{
 (let ([fact-maker (λ (fact)
@@ -280,7 +280,7 @@ There's no @code{let} in lambda calculus, so we will reduce number of @code{let}
     (+ (fact 3) (fact 4))))
 }
 
-As a final step, @code{@mvar{make-possible-recursion}} should consume @code{fact-maker} as an argument, so we can abstract @code{fact-maker} out:
+As a final step, @code{@mvar{make-recursion}} should consume @code{fact-maker} as an argument, so we can abstract @code{fact-maker} out:
 
 @highlight['racket]{
 (let ([fact-maker (λ (fact)
@@ -295,7 +295,7 @@ As a final step, @code{@mvar{make-possible-recursion}} should consume @code{fact
     (+ (fact 3) (fact 4))))
 }
 
-And we are done! We have derived the @code{@mvar{make-recursion-possible}} as follows:
+And we are done! We have derived the @code{@mvar{make-recursion}} as follows:
 
 @highlight['racket]{
 (λ (fact-maker)
@@ -303,7 +303,7 @@ And we are done! We have derived the @code{@mvar{make-recursion-possible}} as fo
    (λ (fact) (fact-maker (λ (n) ((fact fact) n))))))
 }
 
-Notice that there's nothing inherent about the factorial function here. If we use the Fibonacci function as a starting point, we would end up with a term that is @link["https://en.wikipedia.org/wiki/Lambda_calculus#Alpha_equivalence"]{@${\alpha}-equivalent} to this @code{@mvar{make-recursion-possible}} as well. We will highlight this fact by @${\alpha}-convert variable names to remove all references to the factorial function:
+Notice that there's nothing inherent about the factorial function here. If we use the Fibonacci function as a starting point, we would end up with a term that is @link["https://en.wikipedia.org/wiki/Lambda_calculus#Alpha_equivalence"]{@${\alpha}-equivalent} to this @code{@mvar{make-recursion}} as well. We will highlight this fact by @${\alpha}-convert variable names to remove all references to the factorial function:
 
 @highlight['racket]{
 (λ (f)
@@ -311,7 +311,7 @@ Notice that there's nothing inherent about the factorial function here. If we us
    (λ (x) (f (λ (v) ((x x) v))))))
 }
 
-This @code{@mvar{make-recursion-possible}} is formally known as the @emph{Z combinator}, and we will subsequently call it @${Z}. It is one of the well-known @emph{fixed-point combinator}s. The word @link["https://wiki.haskell.org/Combinator"]{@emph{combinator}} means that there's no free variable in @${Z}. The word @link["https://en.wikipedia.org/wiki/Fixed_point_(mathematics)"]{@emph{fixed-point}} means that @${Z(f)} is a solution to the equation @${x = f(x)} for any function @${f}. That is, @${Z(f) = f(Z(f))}. While we can see evidently that @${Z} is a combinator, it's not clear that @${Z(f) = f(Z(f))} is true or how this is important. This topic will be further investigated in the next sections.
+This @code{@mvar{make-recursion}} is formally known as the @emph{Z combinator}, and we will subsequently call it @${Z}. It is one of the well-known @emph{fixed-point combinator}s. The word @link["https://wiki.haskell.org/Combinator"]{@emph{combinator}} means that there's no free variable in @${Z}. The word @link["https://en.wikipedia.org/wiki/Fixed_point_(mathematics)"]{@emph{fixed-point}} means that @${Z(f)} is a solution to the equation @${x = f(x)} for any function @${f}. That is, @${Z(f) = f(Z(f))}. While we can see evidently that @${Z} is a combinator, it's not clear that @${Z(f) = f(Z(f))} is true or how this is important. This topic will be further investigated in the next sections.
 
 Recall that the title of this section is @emph{Deriving a fake Y combinator}. It's fake because we actually derived the Z combinator, not the Y combinator. However, they are essentially the same. The difference of the two combinators will also be covered in the next sections.
 
@@ -515,7 +515,7 @@ The second strategy presented above which successfully evaluates @code{(Y make-f
 
 We have seen earlier that different evaluation stategies might not evaluate a term to the same result. This is disconcerting. Fortunately, the @link["https://en.wikipedia.org/wiki/Church%E2%80%93Rosser_theorem"]{Church-Rosser theorem} guarantees that given a term @${t}, @emph{if two strategies successfully evaluate @${t} to values}, then the two values from both strategies are equal, as we can see from the @code{(double (double 1))} example. The only case that two evaluation strategies would evaluate a term to different results is when one of them doesn't terminate, which is exactly what happens with the Y combinator.
 
-There are advantages and disadvantages for each evaluation strategies. The call by name strategy, for example, has a beautiful property that if a term could be evaluate to a value by @emph{some} evaluation strategy, then the call by name strategy will be able to evaluate the term to the value as well. The disadvantages are (1) it's not really efficient, taking 6 steps to evaluate @code{(double (double 1))} while the call by value strategy can evaluate the term in only 4 steps, and (2) it doesn't interact well with mutation which is a feature that exists in most programming languages. This is the reason why most programming languages use the call by value strategy.
+There are advantages and disadvantages for each evaluation strategies. The call by name strategy, for example, has a beautiful property that if a term could be evaluated to a value by @emph{some} evaluation strategy, then the call by name strategy will be able to evaluate the term to the value as well. The disadvantages are (1) it's not really efficient, taking 6 steps to evaluate @code{(double (double 1))} while the call by value strategy can evaluate the term in only 4 steps, and (2) it doesn't interact well with mutation which is a feature that exists in most programming languages. This is the reason why most programming languages use the call by value strategy.
 
 Due to the call by value strategy, we can't run the Y combinator in the standard Racket language. One cool feature of Racket however is its ability to create and use a new programming language via @link["https://docs.racket-lang.org/guide/more-hash-lang.html"]{the hash lang line}. In fact, the creators of Racket even call Racket @link["https://cacm.acm.org/magazines/2018/3/225475-a-programmable-programming-language/fulltext"]{a Programmable Programming Language}. It is very easy to create a call-by-name language with Racket. Even better, someone did that already and we can just use it!
 

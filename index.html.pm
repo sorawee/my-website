@@ -1,5 +1,7 @@
 #lang pollen
 
+@(require "index-page.rkt")
+
 @(define-meta title "Sorawee Porncharoenwase")
 @(define-meta type index)
 
