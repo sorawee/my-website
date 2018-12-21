@@ -28,6 +28,7 @@
 
 (define/contract (decoder tx) (content? . -> . content?)
   (~> tx
+      decoder/*
       decoder/paragraph
       decoder/smart-typo
       decoder/mark))
@@ -52,3 +53,10 @@
           #:exclude-tags '(style script)
           #:exclude-attrs (list exclusion-mark-attr-all
                                 exclusion-mark-attr-mark)))
+
+(define (decoder/* tx) (decode tx #:inline-txexpr-proc decode-*))
+
+(define decode-*
+  (match-lambda
+    [(txexpr '@see-more _ _) '()]
+    [tx tx]))

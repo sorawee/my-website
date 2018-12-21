@@ -1,19 +1,14 @@
 #lang racket/base
 
-(require (only-in racket/contract define/contract ->)
-         (only-in racket/match match)
-         (only-in racket/pretty pretty-format)
+;; let's be very strict about what should be exported
 
-         (only-in pollen/setup current-project-root)
-
-         (only-in "rkt/decoders.rkt" decoder)
-         (only-in "rkt/contracts.rkt" content?)
-
+(require (only-in "rkt/decoders.rkt" decoder)
 
          ;; for providing
-
          "rkt/tags.rkt"       ;; provide all
+         "rkt/languages.rkt"  ;; provide all
          "rkt/meta-utils.rkt" ;; provide all
+         "rkt/toplevel.rkt"   ;; provide all
 
          (only-in racket/function curry)
 
@@ -23,13 +18,14 @@
 
 (provide curry
          root
-         interp
 
          make-post ;; from rkt/post-utils.rkt
          ! !!      ;; from rkt/tag-utils.rkt
          mark      ;; from rkt/mark.rkt
          (all-from-out "rkt/tags.rkt")
-         (all-from-out "rkt/meta-utils.rkt"))
+         (all-from-out "rkt/languages.rkt")
+         (all-from-out "rkt/meta-utils.rkt")
+         (all-from-out "rkt/toplevel.rkt"))
 
 ;; the standard Pollen setup
 (module setup racket/base
@@ -72,6 +68,7 @@
 ;; and interpret it. If the X-expression is not the special form, then it simply
 ;; returns it. Otherwise, it calls the function `transform` which is supposed to be
 ;; a function from X-expression to X-expression and returns the result.
+;; (`interp` is a part of `toplevel` in rkt/toplevel.rkt)
 ;;
 ;; Note one nifty trick: a `transform` function could return the special form too!
 ;; This allows nested templating.
@@ -81,12 +78,4 @@
 ;; 2. Name starting with @: a tag that should eventually be decoded
 ;; 3. Name starting with @@: a command tag (like the @@app above)
 
-(define (root . items) `(@@app "template.rkt" ,(decoder (! items))))
-
-(define/contract (interp x) (content? . -> . content?)
-  (match x
-    [`(@@app ,f ,doc)
-     (define transform (dynamic-require (build-path (current-project-root) f)
-                                        'transform))
-     (interp (transform doc))]
-    [_ x]))
+(define (root . items) `(@@app "template.rkt" ,(! items)))

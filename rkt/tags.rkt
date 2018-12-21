@@ -1,12 +1,13 @@
 #lang racket/base
 
-(provide nbsp apos emph italic mvar section subsection subsubsection
+(provide squote dquote emph italic mvar section subsection subsubsection
          see-more button link emj section+link margin-note kbds
          $ $$ item numberlist itemlist strike script menu
          filebox filebox-highlight img title
 
-         highlight ;; from ../utils/highlight.rkt
-         )
+         highlight ;; from highlight.rkt
+
+         nbsp apos)
 
 (require racket/contract
          racket/match
@@ -17,13 +18,13 @@
          pollen/decode
          txexpr
          (for-syntax racket/base)
-         "../utils/highlight.rkt"
+         "highlight.rkt"
          "contracts.rkt"
          "decoders.rkt"
          "tag-utils.rkt"
          "meta-utils.rkt"
-         "utils.rkt"
-         "../utils/utils.rkt"
+         "utils/string.rkt"
+         "utils/path.rkt"
          "../config.rkt")
 
 (define-syntax (make-tags stx)
@@ -45,7 +46,7 @@
 (define (subsection . xs) `(h3 ,@xs))
 (define (subsubsection . xs) `(h4 ,@xs))
 
-(define see-more `(see-more))
+(define see-more `(@see-more))
 
 (define/contract (button id title) (string? content? . -> . content?)
   `(button ([id ,id]) ,title))
@@ -180,3 +181,6 @@
          [style ,(string-append "width: " width)])))
 
 (define (title . xs) `(h1 ,@xs))
+
+(define (dquote . xs) `(@ "“" ,@xs "”"))
+(define (squote . xs) `(@ "‘" ,@xs "’"))

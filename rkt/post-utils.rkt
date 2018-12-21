@@ -17,9 +17,11 @@
          "tags.rkt"
          "contracts.rkt"
 
-         "../utils/pollen-file.rkt" ;; patched pollen/file
-         "../utils/file.rkt"
-         "../utils/utils.rkt"
+         "pollen-file.rkt" ;; patched pollen/file
+         "post-file-utils.rkt"
+         "meta-utils.rkt"
+         "utils/path.rkt"
+         "utils/date.rkt"
 
          "../config.rkt")
 
@@ -53,7 +55,10 @@
             (span ([class "pubdate"]) "Updated on "
                   ,(date->string (list->date update-on)))))]
       [else '()]))
-  `(@ ,(if header? `(h2 (a ([href ,post-uri]) ,(select-from-metas 'title path))) "")
+  `(@ ,(if header?
+           `(h2 (a ([href ,post-uri])
+                   ,(title->string (select-from-metas 'title path))))
+           "")
       (p (span ([class "pubdate"]) "Published on "
                ,(date->string (post-filename->date post)))
          " :: "

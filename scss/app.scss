@@ -41,7 +41,7 @@ a:hover {
 }
 
 main {
-    font-family: "Fira Sans";
+    font-family: "SarabunLight", "Fira Sans";
     margin-top: 2ex;
 }
 
@@ -453,9 +453,9 @@ SPAN.paren:before { content: "{{23 levels of indentation?! Yiakes!}}" }
 
 /* Section: Highlight */
 
-SPAN.highlight-focus { background-color: rgba(yellow, 0.7) }
-SPAN.highlight-add { background-color: #acf2bd }
-SPAN.highlight-remove { background-color: #fdb8c0 }
+mark.highlight-focus { background-color: rgba(yellow, 0.7) }
+mark.highlight-add { background-color: #acf2bd }
+mark.highlight-remove { background-color: #fdb8c0 }
 
 /* End Section */
 

@@ -9,7 +9,8 @@
          racket/file
          pollen/core
          pollen/setup
-         "utils.rkt")
+         "utils/path.rkt"
+         "utils/date.rkt")
 
 ; Modified from https://github.com/malcolmstill/mstill.io/blob/master/blog/pollen.rkt
 (define/contract (post-filename->date path-string) (path-string? . -> . (or/c date*? #f))
@@ -23,7 +24,7 @@
   (member 'DRAFT (select-from-metas 'tags (get-metas path))))
 
 (define/contract (pollen-post? path) (path-string? . -> . boolean?)
-  (match (path-string->string path)
+  (match (build-path-string path)
     [(pregexp #px"blog/\\d+/.*\\.poly\\.pm$") #t]
     [_ #f]))
 

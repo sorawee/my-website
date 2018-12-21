@@ -1,22 +1,41 @@
 #lang pollen
 
-@(define-meta title "Deriving the Y Combinator")
+@(define-meta title ((eng  . "Deriving the Y Combinator")
+                     (thai . "ตามล่าหา Y combinator")))
 @(define-meta tags (programming-languages y-combinator))
 @(define-meta updated (2018 12 9))
 
-The Y combinator is a somewhat magical aspect of the untyped lambda calculus. Many people presented explanations of this magic, but I found them somewhat unsatisfactory. Some explanations show the combinator in the beginning and then simply demonstrate that the given combinator is correct. Some other explanations contain lines like "Why don't we try passing it to itself? And look, this turns out to be exactly what we want!" These explanations don't give an intuition for how one could @emph{constructively} obtain the combinator. @italic{What on earth makes you think that passing it to itself is a good idea?} As such, this post, intended for those who know the Y combinator already but do not satisfy with the existing explanations, attempts to explain how one could constructively derive the Y combinator.
+@eng{
+  The Y combinator is a somewhat magical aspect of the untyped lambda calculus. Many people presented explanations of this magic, but I found them somewhat unsatisfactory. Some explanations show the combinator in the beginning and then simply demonstrate that the given combinator is correct. Some other explanations contain lines like @dquote{Why don't we try passing it to itself? And look, this turns out to be exactly what we want!} These explanations don't give an intuition for how one could @emph{constructively} obtain the combinator. @italic{What on earth makes you think that passing it to itself is a good idea?} As such, this post, intended for those who know the Y combinator already but do not satisfy with the existing explanations, attempts to explain how one could constructively derive the Y combinator.
+}
+
+@thai{
+   Y combinator เป็นเวทมนตร์ลึกลับที่ทำให้เราสามารถเขียนฟังก์ชันเวียนเกิดได้ในแคลคูลัสแลมบ์ดา ด้วยความลึกลับของมัน ผู้คนมากมายจึงพยายามที่จะอธิบายว่ามันคืออะไรและทำงานได้อย่างไร แต่เรารู้สึกว่าคำอธิบายส่วนใหญ่นั้นน่าผิดหวังเพราะคำอธิบายเหล่านี้มักจะกำหนด Y combinator ขึ้นมาตั้งแต่แรกและเพียงแค่แสดงให้เห็นว่ามันทำงานถูกต้อง ซึ่งไม่ได้แสดงให้เห็นว่า@emph{เราจะสามารถคิดหา Y combinator ขึ้นมาเองได้อย่างไร} คำอธิบายอีกจำพวกพยายามที่จะตอบโจทย์นี้ แต่ก็มักจะมีประโยคเช่น @dquote{เราไม่รู้ว่าเราควรจะใส่อะไรเข้าไปเป็นพารามิเตอร์ของฟังก์ชันนี้ ทำไมถึงไม่ลองใส่ตัวเองเข้าไปดูล่ะ! และเห็นไหมว่ามันทำงานได้อย่างที่เราต้องการ!} ซึ่งเรารู้สึกว่ามันควรจะมีวิธีอธิบายที่ไม่ต้องใช้การทดลองมั่วแบบนี้ได้ ฉะนั้น โพสต์นี้จึงเป็นความพยายามของเราที่จะอธิบายว่าเราจะสามารถหา Y combinator ได้อย่างไร
+}
 
 @see-more
 
-@section{Introduction}
+@section{@eng{Introduction}@thai{บทนำ}}
 
-In @link["https://en.wikipedia.org/wiki/Lambda_calculus"]{lambda calculus}, there's no primitive support to define recursive functions. @italic{Can we define recursive functions in lambda calculus regardless? And how?}
+@eng{
+  In @link["https://en.wikipedia.org/wiki/Lambda_calculus"]{lambda calculus}, there's no primitive support to define recursive functions. @italic{Can we define recursive functions in lambda calculus regardless? And how?}
+}
 
-While our question focuses on lambda calculus, to make it easier to follow, we will use an actual programming language. Here, I choose to use @link["http://racket-lang.org"]{Racket}@margin-note{The choice of Racket is that:
+@thai{
+  @link["https://th.wikipedia.org/wiki/แคลคูลัสแลมบ์ดา"]{แคลคูลัสแลมบ์ดา}ไม่มีความสามารถโดยกำเนิดในการนิยามฟังก์ชันเวียนเกิด คำถามที่เราสนใจคือ @italic{เป็นไปได้หรือไม่ที่เราจะสามารถหาทางนิยามฟังก์ชันเวียนเกิด แม้ว่าจะมีข้อจำกัดนี้ก็ตาม?}
+}
+
+@eng{
+  While our question focuses on lambda calculus, to make it easier to follow, we will use an actual programming language. Here, I choose to use @link["http://racket-lang.org"]{Racket}@margin-note{The choice of Racket is that:
 @itemlist[
   @item{It is not statically typed, so we can write the combinator which would have been prohibited had we use a language with a standard type system like @link["https://en.wikipedia.org/wiki/Hindley%E2%80%93Milner_type_system"]{Hindley–Milner}.}
   @item{Its scoping rule is simple and close to lambda calculus. Unlike, say, JavaScript and Python, there's no variable hoisting, so we won't encounter a problem where a simple, innocent code @code{const f = () => f();} unintentionally allows recursion.}
 ]}, but other programming languages might work as well.
+}
+
+@thai{
+  ถึงแม้ว่าโพสต์นี้จะเกี่ยวกับแคลคูลัสแลมบ์ดา แต่แคลคูลัสแลมบ์ดาเป็นเพียงแค่ระบบนามธรรม
+}
 
 As mentioned above, this post is intended for those who know basic programming language theory and the Y combinator already. However, I will try to provide links as many as possible to accommodate non-target audience.
 
@@ -35,7 +54,7 @@ In Racket, we can write code to compute @${3! + 4!} easily@margin-note{This post
 ; => 30
 }
 
-Defining this recursive @code{fact} function is possible because @link["https://docs.racket-lang.org/guide/let.html#%28part._.Recursive_.Binding__letrec%29"]{@code{letrec}}@margin-note{Read @code{(letrec ([@mvar{x} @mvar{v}]) @mvar{e})} as "let @code{@mvar{x}} be a recursive function @code{@mvar{v}} and then return @code{@mvar{e}}"} allows us to refer to @code{fact} inside the lambda function that @emph{will} be @code{fact} itself.
+Defining this recursive @code{fact} function is possible because @link["https://docs.racket-lang.org/guide/let.html#%28part._.Recursive_.Binding__letrec%29"]{@code{letrec}}@margin-note{Read @code{(letrec ([@mvar{x} @mvar{v}]) @mvar{e})} as @dquote{let @code{@mvar{x}} be a recursive function @code{@mvar{v}} and then return @code{@mvar{e}}}} allows us to refer to @code{fact} inside the lambda function that @emph{will} be @code{fact} itself.
 
 Of course, lambda calculus has no @code{letrec}. We might ask how Racket implements @code{letrec}, and the short answer is that it does so by using mutation, which lambda calculus doesn't have either. To simulate lambda calculus, we will write the factorial function in Racket without using @code{letrec} and mutation. Here's our first straightforward attempt:
 
@@ -48,7 +67,7 @@ Of course, lambda calculus has no @code{letrec}. We might ask how Racket impleme
 ;; => fact: unbound identifier in: fact
 }
 
-We simply change @code{letrec} to @link["https://docs.racket-lang.org/guide/let.html#%28part._.Parallel_.Binding__let%29"]{@code{let}}@margin-note{Read @code{(let ([@mvar{x} @mvar{v}]) @mvar{e})} as "let @code{@mvar{x}} be @code{@mvar{v}} and then return @code{@mvar{e}}"}. While @code{let} and @code{letrec} are very similar, @code{let} doesn't have the ability that allows us to refer to @code{fact} inside that lambda function. In fact, @code{(let ([@mvar{x} @mvar{v}]) @mvar{e})} doesn't add any expressive power to lambda calculus at all because its semantics is completely equivalent to @code{((λ (@mvar{x}) @mvar{e}) @mvar{v})}, a lambda term. Some programming languages simply treats @code{let} as a @link["https://en.wikipedia.org/wiki/Syntactic_sugar"]{syntactic sugar}, and desugar @code{(let ([@mvar{x} @mvar{v}]) @mvar{e})} to @code{((λ (@mvar{x}) @mvar{e}) @mvar{v})}.
+We simply change @code{letrec} to @link["https://docs.racket-lang.org/guide/let.html#%28part._.Parallel_.Binding__let%29"]{@code{let}}@margin-note{Read @code{(let ([@mvar{x} @mvar{v}]) @mvar{e})} as @dquote{let @code{@mvar{x}} be @code{@mvar{v}} and then return @code{@mvar{e}}}}. While @code{let} and @code{letrec} are very similar, @code{let} doesn't have the ability that allows us to refer to @code{fact} inside that lambda function. In fact, @code{(let ([@mvar{x} @mvar{v}]) @mvar{e})} doesn't add any expressive power to lambda calculus at all because its semantics is completely equivalent to @code{((λ (@mvar{x}) @mvar{e}) @mvar{v})}, a lambda term. Some programming languages simply treats @code{let} as a @link["https://en.wikipedia.org/wiki/Syntactic_sugar"]{syntactic sugar}, and desugar @code{(let ([@mvar{x} @mvar{v}]) @mvar{e})} to @code{((λ (@mvar{x}) @mvar{e}) @mvar{v})}.
 
 As expected, our straightforward attempt doesn't work because the highlighted @code{fact} is unbound. How can we fix it? Let's take a look at another example:
 
@@ -539,7 +558,7 @@ It appears that call-by-value and call-by-name are also known as @emph{applicati
 
 @section{Y and me}
 
-I learned the Y combinator two years ago from the @link["https://cs.brown.edu/courses/cs173/"]{PL class} taught by @link["https://cs.brown.edu/~sk/"]{Shriram Krishnamurthi}. One great explanation (which Shriram pointed us to) is @link["http://felleisen.org/matthias/"]{Matthias Felleisen}@|apos|s @link["https://xivilization.net/~marek/binaries/Y.pdf"]{@italic{A Lecture of the Why of Y}}, which similarly attempts to derive the Y combinator. However, the explanation that corresponds to the "Enabling recursion" section goes in a much slower pace and implicitly contains some elements from the "Fixed point" section. The strength of this approach in my opinion is that it crucially uses the fixed-point identity @${Y(f) = f(Y(f))} to justify the "self-application trick" in the derivation right away, so it motivates really well why @${Y(f) = f(Y(f))} is important. The approach that I use, on the other hand, simply focuses on where things are bound and how do we direct values to appropriate places, which results in a simpler explanation in my opinion. I also make use of @code{let} a lot, which I think helps a lot with readability, with the weakness being that I also need to talk about desugaring.
+I learned the Y combinator two years ago from the @link["https://cs.brown.edu/courses/cs173/"]{PL class} taught by @link["https://cs.brown.edu/~sk/"]{Shriram Krishnamurthi}. One great explanation (which Shriram pointed us to) is @link["http://felleisen.org/matthias/"]{Matthias Felleisen}@|apos|s @link["https://xivilization.net/~marek/binaries/Y.pdf"]{@italic{A Lecture of the Why of Y}}, which similarly attempts to derive the Y combinator. However, the explanation that corresponds to the @dquote{Enabling recursion} section goes in a much slower pace and implicitly contains some elements from the @dquote{Fixed point} section. The strength of this approach in my opinion is that it crucially uses the fixed-point identity @${Y(f) = f(Y(f))} to justify the @dquote{self-application trick} in the derivation right away, so it motivates really well why @${Y(f) = f(Y(f))} is important. The approach that I use, on the other hand, simply focuses on where things are bound and how do we direct values to appropriate places, which results in a simpler explanation in my opinion. I also make use of @code{let} a lot, which I think helps a lot with readability, with the weakness being that I also need to talk about desugaring.
 
 I didn't discover this approach myself. The core insight of this approach is from a student's homework that I graded in the @link["https://cs.brown.edu/courses/cs173/2017/"]{current iteration} of the PL class. A part of the homework asks students to write random programs in a language that is very similar to Racket without @code{letrec} and mutation. I didn't expect that students will be able to write a really meaningful program unless they know a fixed-point combinator already, ... or so I thought. It turns out that one student wrote a program to calculate 1 + 2 + ... + n for arbitrary n without knowing a fixed-point combinator! Here's the program in Racket:
 

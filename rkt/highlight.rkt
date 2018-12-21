@@ -3,6 +3,7 @@
 (provide highlight highlight-match)
 (require racket/match
          racket/function
+         racket/format
          racket/string
          racket/contract
          racket/list
@@ -10,10 +11,10 @@
          pollen/decode
          txexpr
          (rename-in pollen/unstable/pygments [highlight original-highlight])
-         "../rkt/tag-utils.rkt"
-         "../rkt/mark.rkt"
-         "cache.rkt"
-         "doc-uri.rkt")
+         "tag-utils.rkt"
+         "mark.rkt"
+         "doc-uri.rkt"
+         "utils/cache.rkt")
 
 (define (highlight/core lang code-original lineno?)
   (define out
@@ -73,12 +74,12 @@
                     [(? left-focus? lp)
                      (match-define `(span ([class "n"]) ,s) lp)
                      (cons
-                      `(span ([class ,(format "highlight-~a" (substring s 1))])
+                      `(mark ([class ,(~a "highlight-" (substring s 1))])
                              ;; also get rid of space
                              ,@(rest reversed-group))
                       (rest new-stack))]
                     [else
-                     (cons `(span [[class "paren"]] ,lp ,@reversed-group ,e)
+                     (cons `(span ([class "paren"]) ,lp ,@reversed-group ,e)
                            (rest new-stack))])]
                  [_ (cons e stack)]))] ; if too many right parentheses
             [_ (values (cons e stack))])))

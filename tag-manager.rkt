@@ -8,7 +8,7 @@
          pollen/core
          pollen/setup
          "pollen.rkt"
-         "utils/file.rkt" "utils/pollen-file.rkt" "utils/watch-dir.rkt")
+         "rkt/post-file-utils.rkt" "rkt/pollen-file.rkt" "rkt/utils/watch-dir.rkt")
 
 (define current-init? (make-parameter #f))
 (define current-publish? (make-parameter #f))
@@ -42,7 +42,7 @@
 
 (define (generate-index tag paths)
   (for ([page-number (in-naturals)]
-        [slice (in-slice 10 (reverse (sort paths path<?)))])
+        [slice (in-slice 10 (reverse (sort (map build-path paths) path<?)))])
     (generate-index/subpage tag slice page-number)))
 
 (define (delete-all-tags)

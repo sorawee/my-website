@@ -1,0 +1,323 @@
+@font-face {
+    font-family: 'SarabunThinItalic';
+    src: url('./fonts/Sarabun-ThinItalic.eot');
+    src: url('./fonts/Sarabun-ThinItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ThinItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-ThinItalic.woff') format('woff'),
+         url('./fonts/Sarabun-ThinItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraLightItalic';
+    src: url('./fonts/Sarabun-ExtraLightItalic.eot');
+    src: url('./fonts/Sarabun-ExtraLightItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraLightItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraLightItalic.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraLightItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunLightItalic';
+    src: url('./fonts/Sarabun-LightItalic.eot');
+    src: url('./fonts/Sarabun-LightItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-LightItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-LightItalic.woff') format('woff'),
+         url('./fonts/Sarabun-LightItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunItalic';
+    src: url('./fonts/Sarabun-Italic.eot');
+    src: url('./fonts/Sarabun-Italic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Italic.woff2') format('woff2'),
+         url('./fonts/Sarabun-Italic.woff') format('woff'),
+         url('./fonts/Sarabun-Italic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunMediumItalic';
+    src: url('./fonts/Sarabun-MediumItalic.eot');
+    src: url('./fonts/Sarabun-MediumItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-MediumItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-MediumItalic.woff') format('woff'),
+         url('./fonts/Sarabun-MediumItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunSemiBoldItalic';
+    src: url('./fonts/Sarabun-SemiBoldItalic.eot');
+    src: url('./fonts/Sarabun-SemiBoldItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-SemiBoldItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-SemiBoldItalic.woff') format('woff'),
+         url('./fonts/Sarabun-SemiBoldItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBoldItalic';
+    src: url('./fonts/Sarabun-BoldItalic.eot');
+    src: url('./fonts/Sarabun-BoldItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-BoldItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-BoldItalic.woff') format('woff'),
+         url('./fonts/Sarabun-BoldItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraBoldItalic';
+    src: url('./fonts/Sarabun-ExtraBoldItalic.eot');
+    src: url('./fonts/Sarabun-ExtraBoldItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraBoldItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraBoldItalic.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraBoldItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBlackItalic';
+    src: url('./fonts/Sarabun-BlackItalic.eot');
+    src: url('./fonts/Sarabun-BlackItalic.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-BlackItalic.woff2') format('woff2'),
+         url('./fonts/Sarabun-BlackItalic.woff') format('woff'),
+         url('./fonts/Sarabun-BlackItalic.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunThin';
+    src: url('./fonts/Sarabun-Thin.eot');
+    src: url('./fonts/Sarabun-Thin.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Thin.woff2') format('woff2'),
+         url('./fonts/Sarabun-Thin.woff') format('woff'),
+         url('./fonts/Sarabun-Thin.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraLight';
+    src: url('./fonts/Sarabun-ExtraLight.eot');
+    src: url('./fonts/Sarabun-ExtraLight.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraLight.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraLight.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraLight.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunLight';
+    src: url('./fonts/Sarabun-Light.eot');
+    src: url('./fonts/Sarabun-Light.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Light.woff2') format('woff2'),
+         url('./fonts/Sarabun-Light.woff') format('woff'),
+         url('./fonts/Sarabun-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunRegular';
+    src: url('./fonts/Sarabun-Regular.eot');
+    src: url('./fonts/Sarabun-Regular.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Regular.woff2') format('woff2'),
+         url('./fonts/Sarabun-Regular.woff') format('woff'),
+         url('./fonts/Sarabun-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunMedium';
+    src: url('./fonts/Sarabun-Medium.eot');
+    src: url('./fonts/Sarabun-Medium.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Medium.woff2') format('woff2'),
+         url('./fonts/Sarabun-Medium.woff') format('woff'),
+         url('./fonts/Sarabun-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunSemiBold';
+    src: url('./fonts/Sarabun-SemiBold.eot');
+    src: url('./fonts/Sarabun-SemiBold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-SemiBold.woff2') format('woff2'),
+         url('./fonts/Sarabun-SemiBold.woff') format('woff'),
+         url('./fonts/Sarabun-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBold';
+    src: url('./fonts/Sarabun-Bold.eot');
+    src: url('./fonts/Sarabun-Bold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Bold.woff2') format('woff2'),
+         url('./fonts/Sarabun-Bold.woff') format('woff'),
+         url('./fonts/Sarabun-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraBold';
+    src: url('./fonts/Sarabun-ExtraBold.eot');
+    src: url('./fonts/Sarabun-ExtraBold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraBold.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraBold.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBlack';
+    src: url('./fonts/Sarabun-Black.eot');
+    src: url('./fonts/Sarabun-Black.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Black.woff2') format('woff2'),
+         url('./fonts/Sarabun-Black.woff') format('woff'),
+         url('./fonts/Sarabun-Black.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunThin';
+    src: url('./fonts/Sarabun-Thin.eot');
+    src: url('./fonts/Sarabun-Thin.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Thin.woff2') format('woff2'),
+         url('./fonts/Sarabun-Thin.woff') format('woff'),
+         url('./fonts/Sarabun-Thin.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraLight';
+    src: url('./fonts/Sarabun-ExtraLight.eot');
+    src: url('./fonts/Sarabun-ExtraLight.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraLight.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraLight.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraLight.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunLight';
+    src: url('./fonts/Sarabun-Light.eot');
+    src: url('./fonts/Sarabun-Light.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Light.woff2') format('woff2'),
+         url('./fonts/Sarabun-Light.woff') format('woff'),
+         url('./fonts/Sarabun-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunRegular';
+    src: url('./fonts/Sarabun-Regular.eot');
+    src: url('./fonts/Sarabun-Regular.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Regular.woff2') format('woff2'),
+         url('./fonts/Sarabun-Regular.woff') format('woff'),
+         url('./fonts/Sarabun-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunMedium';
+    src: url('./fonts/Sarabun-Medium.eot');
+    src: url('./fonts/Sarabun-Medium.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Medium.woff2') format('woff2'),
+         url('./fonts/Sarabun-Medium.woff') format('woff'),
+         url('./fonts/Sarabun-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunSemiBold';
+    src: url('./fonts/Sarabun-SemiBold.eot');
+    src: url('./fonts/Sarabun-SemiBold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-SemiBold.woff2') format('woff2'),
+         url('./fonts/Sarabun-SemiBold.woff') format('woff'),
+         url('./fonts/Sarabun-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBold';
+    src: url('./fonts/Sarabun-Bold.eot');
+    src: url('./fonts/Sarabun-Bold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Bold.woff2') format('woff2'),
+         url('./fonts/Sarabun-Bold.woff') format('woff'),
+         url('./fonts/Sarabun-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraBold';
+    src: url('./fonts/Sarabun-ExtraBold.eot');
+    src: url('./fonts/Sarabun-ExtraBold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraBold.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraBold.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBlack';
+    src: url('./fonts/Sarabun-Black.eot');
+    src: url('./fonts/Sarabun-Black.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Black.woff2') format('woff2'),
+         url('./fonts/Sarabun-Black.woff') format('woff'),
+         url('./fonts/Sarabun-Black.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunThin';
+    src: url('./fonts/Sarabun-Thin.eot');
+    src: url('./fonts/Sarabun-Thin.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Thin.woff2') format('woff2'),
+         url('./fonts/Sarabun-Thin.woff') format('woff'),
+         url('./fonts/Sarabun-Thin.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraLight';
+    src: url('./fonts/Sarabun-ExtraLight.eot');
+    src: url('./fonts/Sarabun-ExtraLight.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraLight.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraLight.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraLight.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunLight';
+    src: url('./fonts/Sarabun-Light.eot');
+    src: url('./fonts/Sarabun-Light.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Light.woff2') format('woff2'),
+         url('./fonts/Sarabun-Light.woff') format('woff'),
+         url('./fonts/Sarabun-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunRegular';
+    src: url('./fonts/Sarabun-Regular.eot');
+    src: url('./fonts/Sarabun-Regular.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Regular.woff2') format('woff2'),
+         url('./fonts/Sarabun-Regular.woff') format('woff'),
+         url('./fonts/Sarabun-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunMedium';
+    src: url('./fonts/Sarabun-Medium.eot');
+    src: url('./fonts/Sarabun-Medium.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Medium.woff2') format('woff2'),
+         url('./fonts/Sarabun-Medium.woff') format('woff'),
+         url('./fonts/Sarabun-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunSemiBold';
+    src: url('./fonts/Sarabun-SemiBold.eot');
+    src: url('./fonts/Sarabun-SemiBold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-SemiBold.woff2') format('woff2'),
+         url('./fonts/Sarabun-SemiBold.woff') format('woff'),
+         url('./fonts/Sarabun-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBold';
+    src: url('./fonts/Sarabun-Bold.eot');
+    src: url('./fonts/Sarabun-Bold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Bold.woff2') format('woff2'),
+         url('./fonts/Sarabun-Bold.woff') format('woff'),
+         url('./fonts/Sarabun-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunExtraBold';
+    src: url('./fonts/Sarabun-ExtraBold.eot');
+    src: url('./fonts/Sarabun-ExtraBold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-ExtraBold.woff2') format('woff2'),
+         url('./fonts/Sarabun-ExtraBold.woff') format('woff'),
+         url('./fonts/Sarabun-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'SarabunBlack';
+    src: url('./fonts/Sarabun-Black.eot');
+    src: url('./fonts/Sarabun-Black.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/Sarabun-Black.woff2') format('woff2'),
+         url('./fonts/Sarabun-Black.woff') format('woff'),
+         url('./fonts/Sarabun-Black.ttf') format('truetype');
+}

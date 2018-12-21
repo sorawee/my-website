@@ -3,11 +3,15 @@
 #lang racket/base
 
 (provide (all-from-out pollen/file)
-         get-markup-source)
+         get-markup-source
+         ->output-path)
 
 (require racket/string
+         racket/format
          pollen/setup
-         (except-in pollen/file get-markup-source))
+         (rename-in pollen/file
+                    [get-markup-source $get-markup-source]
+                    [->output-path $->output-path]))
 
 ;; A slightly smarter version of ->markup-source-path. A file listed as
 ;; "page.html" in a pagetree might have a source page.html.pm, but it might
@@ -19,3 +23,9 @@
         default-source
         (string->path (string-replace (path->string default-source)
                                       ".html" ".poly")))))
+
+(define (->output-path x)
+  (cond
+    [(string-suffix? (~a x) ".poly.pm")
+     (path-replace-extension ($->output-path x) ".html")]
+    [else ($->output-path x)]))

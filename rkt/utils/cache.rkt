@@ -5,7 +5,7 @@
          racket/list
          racket/function
          pollen/setup
-         "utils.rkt")
+         "path.rkt")
 
 (define (do-cache f #:file [file "cache.rktd"] #:limit [size 1000] . args)
   (define cache-dir (build-path (current-project-root) "cache"))

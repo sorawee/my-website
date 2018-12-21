@@ -14,9 +14,9 @@
          "rkt/contracts.rkt"
          "rkt/post-utils.rkt"
          "rkt/tags.rkt"
-         "utils/utils.rkt"
-         "utils/slug.rkt"
-         "utils/pollen-file.rkt" ;; patched pollen/file
+         "rkt/decoders.rkt"
+         "rkt/utils/path.rkt"
+         "rkt/pollen-file.rkt" ;; patched pollen/file
          "config.rkt")
 
 (define/contract (with-prefix s) (string? . -> . string?)
@@ -73,16 +73,22 @@
 ;; End Section
 
 (define/contract (main-content doc) (content? . -> . content?)
-  (match (get-meta-type)
-    ['post `(@ ,(title) ,(make-post (get-here) #:header? #f))]
-    [_ doc]))
+  (decoder
+   (match (get-meta-type)
+     ['post `(@ ,(title (current-title)) ,(make-post (get-here) #:header? #f))]
+     [_ doc])))
+
+(define/contract (font-setup) (-> content?)
+  (match lang
+    ["thai" (internal-css "css/thai-font.css")]
+    [_ '(@)]))
 
 (define/contract (transform doc) (content? . -> . content?)
   `(html
     ([lang "en"])
     (head
      (meta ([charset "utf-8"]))
-     (title ,(extract-metas 'title))
+     (title ,(current-title))
      (meta ([name "author"] [content "Sorawee Porncharoenwase"]))
      (meta ([name "keywords"] [content ""])) ;; TODO
      (meta ([name "viewport"] [content "width=device-width, initial-scale=1.0"]))
@@ -90,12 +96,12 @@
      (link ([rel "canonical"] [href ""]))
 
      ;; CSS
-     ,(css "https://code.cdn.mozilla.net/fonts/fira.css")
      ,(css "https://afeld.github.io/emoji-css/emoji.css")
      ,(css "https://use.fontawesome.com/releases/v5.5.0/css/all.css")
+     ,(css "https://code.cdn.mozilla.net/fonts/fira.css")
      ,(internal-css "css/app.css")
      ,(internal-css "css/pygments.css")
-     ,(internal-css "css/scribble.css")
+     ,(font-setup)
 
      (link ([rel "alternate"]
             [type "application/atom+xml"]
@@ -157,4 +163,5 @@
      ,(js "https://code.jquery.com/jquery-3.3.1.slim.min.js")
      ,(js "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
      ,(internal-js "js/bootstrap.bundle.min.js")
-     ,(internal-js "js/script.js"))))
+     ,(internal-js "js/script.js")
+     ,@(map internal-js (or (extract-metas 'extra-internal-js) '())))))

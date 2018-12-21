@@ -1,12 +1,28 @@
-;; From https://github.com/greghendershott/frog/blob/master/frog/paths.rkt
-
 #lang racket/base
 
-(provide slug)
-(require racket/format
-         rackjure/threading)
+(provide directory-list-string build-path-string rel-path slug)
 
+(require racket/match
+         racket/path
+         racket/contract
+         racket/format
+         threading
+         pollen/setup)
+
+(define/contract (directory-list-string path #:build? [build? #f])
+  (path-string? #:build? boolean? . -> . (listof string?))
+  (map path->string (directory-list path #:build? build?)))
+
+(define/contract (build-path-string . xs) (path-string? ... . -> . string?)
+  (path->string (apply build-path xs)))
+
+(define/contract (rel-path p) (path-string? . -> . path-string?)
+  (find-relative-path (current-project-root) p))
+
+
+;; From https://github.com/greghendershott/frog/blob/master/frog/paths.rkt
 ;; Convert a string/symbol into a "slug" string
+
 (define (slug s)
   (~>
    ;; First normalize string to Unicode composite form, so e.g. á will

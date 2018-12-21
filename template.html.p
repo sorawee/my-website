@@ -1,2 +1,2 @@
 <!DOCTYPE html>
-@(->html (interp doc))
+@(toplevel doc)

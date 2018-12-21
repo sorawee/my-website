@@ -1,7 +1,7 @@
 #lang pollen
 
 @(require "index-page.rkt"
-          "../utils/file.rkt")
+          "../rkt/post-file-utils.rkt")
 
 @(define-meta title "My Blog")
 @(define-meta type index)

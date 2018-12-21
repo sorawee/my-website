@@ -25,7 +25,7 @@
 (define decode-mark
   (match-lambda
     [(txexpr '@mark _ (list class-name xs ...))
-     `(mark ([class ,(~a "highlight-" class-name)]))]
+     `(mark ([class ,(~a "highlight-" class-name)]) ,@xs)]
     [tx tx]))
 
 (define (mark . xs) `(@mark ,@xs))

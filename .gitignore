@@ -1,5 +1,7 @@
 *.html
 *.css
+!css/pygments.css
+!css/thai-font.css
 *.map
 feed.xml
 compiled/
@@ -9,3 +11,4 @@ tags/*
 cache/
 node_modules/*
 tags.txt
+ltximg

@@ -33,10 +33,10 @@
   this case in the format "yyyy-mm-dd" or "yyyy-mm-dd hh:mm".
 |#
 (require (only-in "rkt/post-utils.rkt" get-summary))
-(require (only-in "rkt/tags-utils.rkt" !))
-(require (only-in "utils/file.rkt" post-filename->date all-posts))
-(require (only-in "utils/utils.rkt" list->date))
-(require (only-in "utils/pollen-file.rkt" get-markup-source))
+(require (only-in "rkt/tag-utils.rkt" !))
+(require (only-in "rkt/post-file-utils.rkt" post-filename->date all-posts))
+(require (only-in "rkt/utils/date.rkt" list->date))
+(require (only-in "rkt/pollen-file.rkt" get-markup-source ->output-path))
 
 #|
   Customizeable values
@@ -99,20 +99,20 @@
         (author (name ,(rss-item-author ri)))
         (published ,(date->rfc3339 (rss-item-pubdate ri)))
         (updated ,(date->rfc3339 (rss-item-update ri)))
-        (title [[type "text"]] ,(rss-item-title ri))
-        (link [[rel "alternate"] [href ,item-url]])
+        (title ([type "text"]) ,(rss-item-title ri))
+        (link ([rel "alternate"] [href ,item-url]))
         (id ,item-url)
-        (summary [[type "html"]]
+        (summary ([type "html"])
                  ,(as-cdata (string-append
                              (rss-item-summary ri)
-                             (xexpr->string `(p (a ((href ,item-url))
+                             (xexpr->string `(p (a ([href ,item-url])
                                                    "Click here to read "
                                                    (i ,(rss-item-title ri)))))))))))
 
-  `(feed [[xml:lang "en-us"] [xmlns "http://www.w3.org/2005/Atom"]]
+  `(feed ([xml:lang "en-us"] [xmlns "http://www.w3.org/2005/Atom"])
          (title ,title)
-         (link [[rel "self"] [href ,link]])
-         (generator [[uri "http://pollenpub.com/"]] "Pollen (custom feed)")
+         (link ([rel "self"] [href ,link]))
+         (generator ([uri "http://pollenpub.com/"]) "Pollen (custom feed)")
          (id ,link)
          (updated ,(date->rfc3339 (current-date)))
          (author
@@ -140,7 +140,7 @@
            (define item-update (or (list->date (hash-ref item-metas 'updated #f))
                                    item-pubdate))
            (when (not item-pubdate) (printf "~a does not have pubdate" item-title))
-           (rss-item item-title item-author item-link item-summary item-pubdate item-update))
+           (rss-item item-title item-author (path->string (->output-path item-link)) item-summary item-pubdate item-update))
          rss-items))
     ;; sort from latest to earliest. Doesn't rely on order in ptree file, but rather pub date in source.
     (sort rss-unsorted-item-structs > #:key (λ(i) (date->seconds (rss-item-pubdate i)))))

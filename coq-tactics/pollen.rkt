@@ -19,8 +19,8 @@
          pollen/decode
          threading
          txexpr
-         "../utils/highlight.rkt"
-         "../utils/cache.rkt"
+         "../rkt/highlight.rkt"
+         "../rkt/utils/cache.rkt"
          "../rkt/mark.rkt")
 
 (module setup racket/base
@@ -58,7 +58,7 @@
     ;; tactic that is already teletyped
     [(txexpr '@tactic-raw _ xs) (! (foldl linkify xs uniq-tactics))]
     [(txexpr '@lookup-uncat _ _)
-     (! (map (λ (p) (txexpr-proc `(lookup-tac ,(car p) ,(cdr p))))
+     (! (map (λ (p) (txexpr-proc `(@lookup-tac ,(car p) ,(cdr p))))
              (set-subtract (map car collected-tactics) mentioned-tactics)))]
     [_ tx]))
 
@@ -201,7 +201,7 @@
            " "
            `(span ([class "err"]) ,(== right-marker))
            rst ...)
-     (define next (cons `(span ([class ,(format "highlight-~a" class-name)])
+     (define next (cons `(mark ([class ,(~a "highlight-" class-name)])
                                ,@inside)
                         acc))
      (cond

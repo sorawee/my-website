@@ -2,7 +2,7 @@
 
 (provide blog-header)
 (require racket/contract
-         "../utils/utils.rkt"
+         "../rkt/utils/path.rkt"
          "../rkt/contracts.rkt"
          "../config.rkt")
 

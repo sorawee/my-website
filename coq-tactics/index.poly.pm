@@ -2,6 +2,7 @@
 
 @(define-meta title "Yet Another Coq Tactic Index")
 @(define-meta type page)
+@(define-meta extra-internal-js ("js/coq-tactics.js"))
 
 @title{@current-title[] (Pre-Alpha)}
 
