@@ -1,24 +1,14 @@
 #lang racket/base
 
-(require racket/string racket/match racket/function racket/exn
-         racket/sequence racket/file racket/set racket/cmdline
+(require racket/string racket/match racket/function
+         racket/sequence racket/file racket/set
          racket/contract
-         (for-syntax racket/base)
          web-server/templates
          pollen/core
          pollen/setup
-         "pollen.rkt"
-         "rkt/post-file-utils.rkt" "rkt/pollen-file.rkt" "rkt/utils/watch-dir.rkt")
+         (for-syntax racket/base) ;; to make template rendering go through
+         "rkt/post-file-utils.rkt")
 
-(define current-init? (make-parameter #f))
-(define current-publish? (make-parameter #f))
-
-(command-line
- #:once-each
- [("--init") "Regenerate every tags initially"
-             (current-init? #t)]
- [("--publish") "Publish mode: regenerate every tags, and do not watch"
-             (current-publish? #t)])
 
 (define/contract (get-tags path) (path-string? . -> . (listof symbol?))
   (filter (negate (curry eq? 'DRAFT)) (select-from-metas 'tags (get-metas path))))
@@ -55,11 +45,6 @@
 
 (define path-map (build-map))
 
-(define (refresh-tag-index)
-  (with-output-to-file "tags.txt" #:exists 'replace
-    (thunk (write path-map))))
-
-
 (define (process-tag tag)
   (printf "Regenerating tag ~a\n" tag)
   (define paths (for/list ([(path tags) path-map] #:when (member tag tags)) path))
@@ -67,54 +52,9 @@
     ['() (delete-tag-if-exists tag)]
     [_ (generate-index tag paths)]))
 
-(define (on-file-change path type)
-  (printf "~s: ~s\n" path type)
-  (cond
-    [(pollen-post? (path->string path))
-     (match type
-       ['delete
-        (define tags (hash-ref path-map path))
-        (set! path-map (hash-remove path-map path))
-        (with-output-to-file "tags.txt" #:exists 'replace
-          (thunk (write path-map)))
-        (for ([tag tags]) (process-tag tag))]
-       [(or 'create 'modify)
-        (define new-tags (get-tags path))
-        (define old-tags (hash-ref path-map path '()))
-        (cond
-          [(equal? new-tags old-tags) (void)]
-          [else
-           (set! path-map (hash-set path-map path new-tags))
-           (refresh-tag-index)
-           (for ([tag (set-symmetric-difference (list->set new-tags)
-                                                (list->set old-tags))])
-             (process-tag tag))])])]))
-
 ;; we might consider "resetting" the map (by building the map afresh) after
 ;; an exception occurs
 
-(when (or (current-publish?) (current-init?))
-  (delete-all-tags)
-  (refresh-tag-index)
-  (for ([tag (apply set-union (map list->set (cons '() (hash-values path-map))))])
-    (process-tag tag)))
-
-(when (current-publish?)
-  (exit))
-
-(void
- (begin
-   (displayln "Start watching...")
-   (watch-directory
-    (build-path ".")
-    '(file)
-    (λ (path type)
-      (cond
-        [(string-contains? (path->string path) "compiled/") (void)]
-        [else (with-handlers ([exn:fail? (compose1 displayln exn->string)])
-                (on-file-change path type))]))
-    #:rate 1)))
-
-(let loop ()
-  (sleep 1000)
-  (loop))
+(delete-all-tags)
+(for ([tag (apply set-union (map list->set (cons '() (hash-values path-map))))])
+  (process-tag tag))

@@ -2,8 +2,7 @@
 
 (provide directory-list-string build-path-string rel-path slug)
 
-(require racket/match
-         racket/path
+(require racket/path
          racket/contract
          racket/format
          threading

@@ -5,7 +5,6 @@
 (require racket/match
          racket/contract
          racket/function
-         racket/path
          racket/file
          pollen/core
          pollen/setup
@@ -25,12 +24,12 @@
 
 (define/contract (pollen-post? path) (path-string? . -> . boolean?)
   (match (build-path-string path)
-    [(pregexp #px"blog/\\d+/.*\\.poly\\.pm$") #t]
+    [(pregexp #px"blog/\\d+/.*\\.html\\.pm$") #t]
     [_ #f]))
 
 
 (define/contract (all-posts #:draft? [draft? #f])
-  (() (#:draft? boolean?) . ->* . (listof path?))
+  (() (#:draft? boolean?) . ->* . list?)
   (define fake-is-draft? (if draft? (λ (_) #f) is-draft?))
   (reverse
    (sort (map rel-path (find-files (conjoin pollen-post? (negate fake-is-draft?))

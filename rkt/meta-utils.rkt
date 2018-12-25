@@ -12,7 +12,7 @@
   (cond
     [(string? title) title]
     [else (cdr (or (assoc (string->symbol lang) title)
-                   (assoc 'eng title)))]))
+                   (assoc 'en title)))]))
 
 ;; TODO: after we transition to all dicts, remove the string case.
 (define (current-title) (title->string (extract-metas 'title)))

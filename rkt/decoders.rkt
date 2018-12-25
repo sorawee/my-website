@@ -1,24 +1,17 @@
 #lang racket/base
 
-(require racket/function
-         racket/contract
+(require racket/contract
          racket/match
-         racket/format
-         racket/list
          pollen/decode
          txexpr
          threading
-         "tag-utils.rkt"
          "contracts.rkt"
          "mark.rkt")
 
 (provide decoder
-         decoder/paragraph
-         decoder/smart-typo
-         decoder/mark
 
-         exclusion-mark-attr-all
-         exclusion-mark-attr-smart-typo
+         decode-fragment
+
          exclusion-mark-attr-paragraph)
 
 (define exclusion-mark-attr-all '(decode "exclude-all"))
@@ -28,7 +21,7 @@
 
 (define/contract (decoder tx) (content? . -> . content?)
   (~> tx
-      decoder/*
+      decoder/see-more
       decoder/paragraph
       decoder/smart-typo
       decoder/mark))
@@ -54,9 +47,14 @@
           #:exclude-attrs (list exclusion-mark-attr-all
                                 exclusion-mark-attr-mark)))
 
-(define (decoder/* tx) (decode tx #:inline-txexpr-proc decode-*))
+(define (decoder/see-more tx) (decode tx #:inline-txexpr-proc decode-see-more))
 
-(define decode-*
+(define decode-see-more
   (match-lambda
     [(txexpr '@see-more _ _) '()]
+    [tx tx]))
+
+(define decode-fragment
+  (match-lambda
+    [(txexpr '@ _ elems) elems]
     [tx tx]))

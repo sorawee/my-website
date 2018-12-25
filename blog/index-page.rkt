@@ -7,7 +7,7 @@
          "../config.rkt")
 
 (define/contract (blog-header) (-> content?)
-  `(a ([href ,(build-path-string path-prefix "feed.xml")]
+  `(a ([href ,(build-path-string path-prefix-lang "feed.xml")]
        [class "btn btn-rss"])
       (i ([class "fas fa-rss"]))
       " Subscribe"))

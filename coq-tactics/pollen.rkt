@@ -5,21 +5,20 @@
          coq-tactic usage use-when tac coq-interactive relevant-tactics caveat
          additional-desc lookup-tac tactic lookup-uncat)
 
-(require (rename-in "../pollen.rkt" [root $root])
-         racket/sequence
+(require racket/sequence
          racket/list
-         racket/pretty
          racket/function
          racket/match
          racket/system
          racket/format
-         racket/port
          racket/string
          racket/set
          pollen/decode
          threading
          txexpr
-         "../rkt/highlight.rkt"
+         (rename-in "../pollen.rkt" [root $root])
+         (only-in "../rkt/highlight.rkt" highlight-match)
+         "../rkt/utils/debugging.rkt"
          "../rkt/utils/cache.rkt"
          "../rkt/mark.rkt")
 
@@ -97,7 +96,7 @@
 
 (define (analyze/combine pair) (string-append (car pair) "\n\n" (cdr pair)))
 
-(define (call-coq src)
+(define (call-coq/core src)
   (match-define (list in out _ err proc)
     (process (~a (find-executable-path "coqtop") " -emacs 2>&1")))
   (display src out)
@@ -114,9 +113,11 @@
   (proc 'kill)
   (rest (reverse output)))
 
+(define call-coq (do-cache call-coq/core #:file "coq.rktd"))
+
 (define (coq-interactive . xs)
   (define src (string-append* (rest (decode (! xs) #:inline-txexpr-proc remove-mark))))
-  (define output (do-cache call-coq src #:file "coq.rktd"))
+  (define output (atime 'call-coq (call-coq src)))
   (apply coq-box
          (apply coq-block xs)
          (~> output
@@ -150,8 +151,8 @@
            (div ([class "col text-right"]
                  [data-size ,(number->string (length xs))]
                  [data-refid ,(number->string refid)])
-                (button ([class "prev-button mr-1"]) "Previous")
-                (button ([class "next-button ml-1"]) "Next")))
+                ,(button #:class "btn btn-primary btn-sm prev-button mr-1" "Previous")
+                ,(button #:class "btn btn-primary btn-sm next-button ml-1" "Next")))
       (div ([class "coq-box row no-gutters"]
             [id ,(format "coq-box-~a" refid)])
            (div ([class "coq-script col-md-6"]) ,script)
@@ -168,6 +169,9 @@
   ;;
   ;; We will parse code in a stupid way since the correct way seems very complex.
   ;; If there are cases that break, we will fix them later.
+  ;;
+  ;; (It obviously breaks right now for `apply (H 1).` since `.` is after a symbol
+  ;; and won't be handled correctly.)
 
   (define (make-next obj)
     `((span ([class ,(format "show-all show-~a" i)]) ,@(reverse obj))))
@@ -218,7 +222,11 @@
 
 (define (coq-block . xs)
   (highlight-match
-   (compose1 (curryr transform-term-sep '() 1) transform-linkify)
+   (λ (pre-elem)
+     (match-define (txexpr 'pre attrs xs) pre-elem)
+     (txexpr 'pre attrs (~> xs
+                            transform-linkify
+                            (transform-term-sep _ '() 1))))
    (apply highlight "coq" xs)))
 
 (define (usage . xs) `(div ([class "coq-usage"]) (b "Usage: ") ,@xs))

@@ -10,6 +10,7 @@
 
          pollen/core
          pollen/setup
+         pollen/file
 
          txexpr
          threading
@@ -17,7 +18,6 @@
          "tags.rkt"
          "contracts.rkt"
 
-         "pollen-file.rkt" ;; patched pollen/file
          "post-file-utils.rkt"
          "meta-utils.rkt"
          "utils/path.rkt"
@@ -31,7 +31,7 @@
   ((path-string?) (#:see-more? boolean? #:header? boolean?) . ->* . content?)
 
   (define/contract (make-tag tag) (string? . -> . content?)
-    `(a [[href ,(build-path-string path-prefix "tags" tag)]] ,tag))
+    `(a [[href ,(build-path-string path-prefix-lang "tags" tag)]] ,tag))
 
   (define path (build-path-string (current-project-root) post))
   (printf "Make post with: ~a and ~a\n" post path)
@@ -42,7 +42,7 @@
           [_ (error 'make-post "@@app not found during rendering ~a" post)])
         ((if see-more? get-summary values) _)
         get-elements))
-  (define post-uri (build-path-string path-prefix (->output-path post)))
+  (define post-uri (build-path-string path-prefix-lang (->output-path post)))
   (define/contract (get-see-more) (-> content?)
     `(div ([class "see-more-link"])
           (a ([href ,post-uri])

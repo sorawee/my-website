@@ -2,11 +2,10 @@
 
 ;; let's be very strict about what should be exported
 
-(require (only-in "rkt/decoders.rkt" decoder)
+(require (only-in "rkt/root.rkt" define/root)
 
          ;; for providing
          "rkt/tags.rkt"       ;; provide all
-         "rkt/languages.rkt"  ;; provide all
          "rkt/meta-utils.rkt" ;; provide all
          "rkt/toplevel.rkt"   ;; provide all
 
@@ -23,7 +22,6 @@
          ! !!      ;; from rkt/tag-utils.rkt
          mark      ;; from rkt/mark.rkt
          (all-from-out "rkt/tags.rkt")
-         (all-from-out "rkt/languages.rkt")
          (all-from-out "rkt/meta-utils.rkt")
          (all-from-out "rkt/toplevel.rkt"))
 
@@ -31,17 +29,25 @@
 (module setup racket/base
   (provide (all-defined-out))
   (require racket/function
+           racket/runtime-path
            racket/string
-           syntax/modresolve)
+           (for-syntax racket/base))
 
   ;; do not allow silent unbound ids
   (define allow-unbound-ids #f)
 
-  ;; make changes in these files refreshable
-  (define watchlist '("index-page.rkt"
-                      "template.rkt"
-                      "rkt/tags.rkt"))
-  (define cache-watchlist (map resolve-module-path watchlist))
+  (define-syntax (define-cache-watchlist stx)
+    (syntax-case stx ()
+      [(_ files ...)
+       (with-syntax ([(ids ...) (generate-temporaries #'(files ...))]
+                     [cache-watchlist (datum->syntax stx 'cache-watchlist)])
+         #'(begin
+             (define-runtime-path ids files) ...
+             (define cache-watchlist (list ids ...))))]))
+
+  (define-cache-watchlist
+    "rkt/tags.rkt"
+    "template.rkt")
 
   ;; setup omitted paths
   (define (omitted-path? p)
@@ -78,4 +84,5 @@
 ;; 2. Name starting with @: a tag that should eventually be decoded
 ;; 3. Name starting with @@: a command tag (like the @@app above)
 
-(define (root . items) `(@@app "template.rkt" ,(! items)))
+(define/root xs
+  `(@@app "template.rkt" ,(! xs)))

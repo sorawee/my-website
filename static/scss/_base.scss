@@ -1,0 +1,16 @@
+%teletype {
+    $c: 97%;
+    font-family: "Source Code Pro", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: rgb($c, $c, $c);
+    color: inherit;
+}
+
+%code-header {
+    $c: 95%;
+    background-color: rgb($c, $c, $c);
+}
+
+%a-background {
+    $c: 93%;
+    background-color: rgb($c, $c, $c);
+}

@@ -1,0 +1,446 @@
+$font-size-base: 1.1rem;
+$tooltip-max-width: 300px;
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
+@import "base";
+
+/* Section: Default */
+
+
+article img {
+    /* Make sure that images within blog articles never take more width
+     than the article width; `height: auto` ensures the height is also
+     resized proportionally.
+
+     This is useful given that Markdown itself gives you little
+     control over image resizing, and in particular no way to achieve
+     this "best fit" behavior.
+   */
+    max-width: 100%;
+    height: auto;
+}
+
+/* End Section */
+
+/* Section: tag */
+
+pre {
+    white-space: pre;
+    width: inherit;
+    padding: 0.5rem;
+    margin-bottom: 0;
+}
+
+a:hover {
+    @extend %a-background;
+    text-decoration: none;
+
+    code {
+        @extend %a-background;
+    }
+}
+
+a.disabled {
+    pointer-events: none;
+}
+
+label {
+    cursor: pointer;
+}
+
+h2 {
+    font-size: $h2-font-size * 0.8;
+}
+
+h3 {
+    font-size: $h3-font-size * 0.8;
+}
+
+
+/* from https://developer.mozilla.org/en-US/docs/Tools/Page_Inspector/Keyboard_shortcuts */
+kbd {
+    border-radius: 2px;
+    border: 1px solid #b4b4b4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.2), 0 2px 0 0 rgba(255,255,255,.7) inset;
+    font-size: .75em;
+    font-weight: 700;
+    padding: 3px;
+    white-space: nowrap;
+}
+
+/* From GitHub */
+code {
+    padding: 2px 4px;
+    border-radius: 0.3rem;
+    white-space: pre;
+}
+
+footer {
+    margin-bottom: 6ex;
+}
+
+li {
+    margin: 10px;
+}
+
+mark {
+    padding: 0;
+}
+
+/* End Section */
+
+/* Section: font family and languages */
+
+main {
+    font-family: "Sarabun", sans-serif;
+    margin-top: 2ex;
+    line-height: 2;
+}
+
+pre, code, kbd, samp {
+    @extend %teletype;
+}
+
+
+/* Section: Bootstrap hacks */
+
+.tooltip-inner {
+    overflow-wrap: normal;
+}
+
+/* End Section */
+
+/* Section: highlight */
+
+.filebox > .filename {
+    @extend %teletype;
+    @extend %code-header;
+    padding-bottom: 0.4rem;
+    padding-top: 0.4rem;
+    padding-left: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-top-left-radius: 0.5rem;
+    color: midnightblue;
+    font-size: 1rem;
+    top: 1px;
+}
+
+html .highlight {
+    @extend %teletype;
+    margin-bottom: 2ex;
+    overflow-x: auto;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.highlight a {
+    color: inherit;
+    border: 1px;
+    border-style: none none dotted none;
+}
+
+.copy-button {
+    display: inline-block;
+    position: absolute;
+    right: 0.3rem;
+    top: 0.3rem;
+    opacity: 0;
+}
+
+.highlight-container {
+    position: relative;
+}
+
+.highlight-container:hover > .copy-button {
+    opacity: 0.5;
+}
+
+/* End Section */
+
+
+#content-title--index-html h2 span {
+    font-size: 70%;
+    padding-left: 1rem;
+}
+
+.content-type--index {
+    @extend .justify-content-center
+}
+
+.content-type--index > div {
+    @extend .col-md-10
+}
+
+.content-type--post > div {
+    @extend .col-md-9
+}
+
+.content-type--page > div {
+    @extend .col-md-9
+}
+
+.pubdate, .update {
+    font-style: italic;
+}
+
+img.block-image {
+    display: block;
+    margin: 0 auto;
+}
+
+.update {
+    margin-top: -1ex;
+}
+
+/* to override Scribble's styling */
+.container h2 {
+    margin-top: 2ex;
+}
+
+.site-info {
+    h1 {
+        font-size: 150%;
+        a {
+            color: black;
+        }
+    }
+
+    p {
+        margin: 0;
+    }
+
+    font-size: 90%;
+}
+
+article.post-summary {
+    padding-bottom: 2ex;
+}
+
+
+.date {
+    font-style: italic;
+}
+
+.publication-list {
+    @extend .list-unstyled;
+}
+
+.btn-rss {
+    @include button-variant($orange, $orange);
+    color: white;
+}
+
+.dblp-icon {
+    width: 1.5rem;
+}
+
+/* Section: margin-note */
+
+.margin-note ul {
+    padding-left: 1rem;
+}
+
+$without-margin-notes: xs sm;
+$with-margin-notes: md lg xl;
+$margin-note-number-baseline: -0.5rem;
+
+.margin-note-number { counter-increment: margin-note-counter; }
+
+body {
+    counter-reset: margin-note-counter;
+}
+
+.margin-note-number:after, .margin-note-box:before {
+    top: $margin-note-number-baseline;
+    font-size: 0.8rem;
+    position: relative;
+    vertical-align: baseline;
+}
+
+.margin-note-box:before {
+    content: counter(margin-note-counter) " ";
+}
+
+.margin-note-number:after {
+    content: counter(margin-note-counter);
+    margin-left: 0.1rem;
+}
+
+input.margin-note-toggle { display: none; }
+label.margin-note-number { display: inline; }
+label.margin-note-toggle:not(.margin-note-number) { display: none; }
+
+@include media-breakpoint-down(nth($without-margin-notes, -1)) {
+    label.margin-note-toggle:not(.margin-note-number) { display: inline; }
+    .margin-note { display: none; }
+    .margin-note-toggle:checked + .margin-note {
+        display: block;
+        margin: 3ex 1rem;
+    }
+}
+
+@include media-breakpoint-up(nth($with-margin-notes, 1)) {
+    .margin-note {
+        float: right;
+        clear: right;
+        position: relative;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        padding-bottom: 2ex;
+        padding-left: 1rem;
+    }
+}
+
+@each $size in $with-margin-notes {
+    @include media-breakpoint-only($size) {
+        .margin-note {
+            margin-right: (map-get($container-max-widths, $size) / -4);
+            width: (map-get($container-max-widths, $size) / 4);
+        }
+    }
+}
+
+.margin-note-box {
+    padding: 0.5rem;
+    background-color: beige;
+}
+
+/* End Section */
+
+/* Add line separator between linenos and code */
+table.sourcetable td.linenos {
+    border-right: thin solid #ddd;
+}
+
+/* Make pre in sourcetable not screwed up */
+table.sourcetable pre {
+    margin-left: 0;
+}
+
+table.sourcetable td.code {
+    width: 100%;
+}
+
+table.sourcetable {
+    width: 100%;
+}
+
+/* Section: parentheses highlight
+   Adapted from: http://community.schemewiki.org/?wiki-css */
+
+$paren-colors: #ffcfcf #cfffcf #cfcfff #cfffff #ffcfff #ffffcf #b4e1ea #bdeab4 #ead4b4 #f4d0ec #d0d9f4;
+
+$paren-limit: 27;
+
+@for $i from 0 through $paren-limit {
+  $j: 1;
+  $c: "";
+  @while $j <= $i {
+      $j: $j + 1;
+      $c: $c + "span.paren ";
+  }
+  .highlight pre.racket #{$c} span.paren:hover {
+      background-color: rgba(nth($paren-colors, ($i % length($paren-colors)) + 1), 0.75);
+  }
+}
+
+$c: "";
+@for $j from 1 through ($paren-limit + 1) {
+    $c: $c + "SPAN.paren ";
+}
+
+pre.racket #{$c} span.paren:before {
+    content: "{{#{$paren-limit} levels of indentation?! Yikes!}}"
+}
+
+/* End Section */
+
+/* Section: Highlight */
+
+mark {
+    padding: 3px;
+}
+
+mark.highlight-focus {
+    background-color: rgba(yellow, 0.7);
+    border: 1px dashed #999;
+}
+mark.highlight-add {
+    background-color: #ccf2dd;
+    border: 1px dashed #999;
+}
+mark.highlight-remove {
+    background-color: #fdd8e0;
+    border: 1px dashed #999;
+}
+
+/* End Section */
+
+/* Section: Text type */
+
+.text-type-error {
+    color: red;
+}
+
+/* End Section */
+
+/* Section: Coq */
+h3.coq-tactic, .coq-usage, .coq-use-when, .coq-relevant, .coq-caveat, .coq-desc {
+    margin: 1em 0;
+}
+
+.inverted-tactic {
+    display: list-item;
+    list-style-position: inside;
+    margin: 10px;
+}
+
+h3.coq-tactic {
+    margin-top: 5ex;
+}
+
+#content-title--coq-tactics-index-html h2 {
+    font-size: $h2-font-size;
+}
+
+.coq-box {
+    display: flex;
+    margin-bottom: 1ex;
+}
+
+.coq-box .highlight {
+    margin-bottom: 0;
+}
+
+@include media-breakpoint-up(md) {
+    .coq-script {
+        border-right: 1px solid #ddd;
+    }
+}
+
+.coq-pane, .coq-script {
+    flex-grow: 1;
+}
+
+.coq-pane div, .coq-script div {
+    height: 100%;
+}
+
+.coq-pane .linenos {
+    display: none;
+}
+
+.coq-buttons {
+    @extend %code-header;
+    padding: 0.5rem;
+}
+
+.coq-pane.show-all {
+    display: none;
+}
+
+.coq-pane.show-all.show-0 {
+    display: block;
+}
+
+/* End Section */

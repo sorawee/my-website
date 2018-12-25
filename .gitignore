@@ -1,7 +1,9 @@
-*.html
-*.css
 !css/pygments.css
 !css/thai-font.css
+!redirect/index.html
+
+*.html
+*.css
 *.map
 feed.xml
 compiled/

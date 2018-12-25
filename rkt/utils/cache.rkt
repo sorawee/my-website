@@ -1,28 +1,41 @@
 #lang racket/base
 
-(provide do-cache)
+(provide do-cache cleanup)
 (require racket/file
-         racket/list
          racket/function
          pollen/setup
          "path.rkt")
 
-(define (do-cache f #:file [file "cache.rktd"] #:limit [size 1000] . args)
-  (define cache-dir (build-path (current-project-root) "cache"))
+(define cache-dir (build-path (current-project-root) "cache"))
+(define cache (make-hash))
+(define changed? (make-hash))
+
+(define (cleanup)
   (when (not (directory-exists? cache-dir))
     (make-directory* cache-dir))
-  (set! file (build-path-string cache-dir file))
-  (define (prune xs) (if (> (length xs) size) (take xs size) xs))
-  (define (add-cache current-cache)
-    (define result (apply f args))
-    (with-output-to-file file #:exists 'replace
-      (thunk (write (prune (cons (list args result) current-cache)))))
-    result)
+  (for ([(fname the-cache) cache])
+    (when (hash-has-key? changed? fname)
+      (printf "Writing ~a\n" fname)
+      (with-output-to-file (build-path-string cache-dir fname) #:exists 'replace
+        (thunk (write (hash->list the-cache)))))))
+
+(define (do-cache base-proc #:file [fname "cache.rktd"])
+  (define path (build-path-string cache-dir fname))
   (cond
-    [(file-exists? file)
-     (define current-cache (with-input-from-file file read))
-     (define cache (assoc args current-cache))
-     (if cache
-         (second cache)
-         (add-cache current-cache))]
-    [else (add-cache '())]))
+    ;; if we have it in the cache already, no need to initialize
+    [(hash-has-key? cache fname) (void)]
+    ;; if the cachefile exists, load it
+    [(file-exists? path)
+     (hash-set! cache fname (make-hash (with-input-from-file path read)))]
+    ;; otherwise, initialize it to empty locally
+    [else (hash-set! cache fname (make-hash))])
+
+  (define the-cache (hash-ref cache fname))
+
+  (make-keyword-procedure
+   (λ (kws kw-args . args)
+     (hash-ref! the-cache
+                (list* kws kw-args args)
+                (thunk
+                 (hash-set! changed? fname #t)
+                 (keyword-apply base-proc kws kw-args args))))))

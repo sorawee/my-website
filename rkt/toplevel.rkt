@@ -1,13 +1,13 @@
 #lang racket/base
 
 (provide toplevel)
-(require racket/format
-         racket/string
+(require racket/string
          racket/function
          racket/contract
          racket/match
          pollen/setup
          pollen/template
+         "utils/cache.rkt"
          "contracts.rkt")
 
 (define tags
@@ -44,4 +44,8 @@
      (interp (transform doc))]
     [_ x]))
 
-(define toplevel (compose1 add-newlines ->html interp))
+(define (cleanup* v)
+  (cleanup)
+  v)
+
+(define toplevel (compose1 cleanup* add-newlines ->html interp))

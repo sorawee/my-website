@@ -23,6 +23,7 @@
          racket/match
          xml
          pollen/core
+         pollen/file
          pollen/template
          txexpr)
 
@@ -36,7 +37,7 @@
 (require (only-in "rkt/tag-utils.rkt" !))
 (require (only-in "rkt/post-file-utils.rkt" post-filename->date all-posts))
 (require (only-in "rkt/utils/date.rkt" list->date))
-(require (only-in "rkt/pollen-file.rkt" get-markup-source ->output-path))
+(require (only-in "rkt/meta-utils.rkt" title->string))
 
 #|
   Customizeable values
@@ -127,7 +128,7 @@
     (map (λ (item-link)
            (define item-path (get-markup-source item-link))
            (define item-metas (get-metas item-path 'metas))
-           (define item-title (select-from-metas 'title item-metas))
+           (define item-title (title->string (select-from-metas 'title item-metas)))
            (define item-content
              (match (get-doc item-path)
                [(txexpr '@@app _ (list _ xs ...)) (! xs)]

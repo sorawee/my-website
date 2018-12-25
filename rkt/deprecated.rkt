@@ -49,7 +49,6 @@
 
 (define (eng . xs) (! (append (list "(ภาษาอังกฤษ: ") xs (list ")"))))
 
-
 (define (^ . xs) `(sup ,@xs))
 
 
@@ -64,4 +63,4 @@
       (span [[class "folded-content"]] ,@xs)))
 
 (define (spoiler . xs)
-  (apply folded (cons "[spoiler ⊕]" xs)))
+  (apply folded "[spoiler ⊕]" xs))
